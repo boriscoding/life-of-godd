@@ -118,7 +118,14 @@ export default function InscriptionForm() {
             className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-900 focus:ring-emerald-800 cursor-pointer"
           />
           <label htmlFor="terms" className="text-xs text-gray-600 leading-normal">
-            J&apos;accepte les <span className="font-medium text-gray-900 underline">Conditions Générales d&apos;Utilisation</span> et la <span className="font-medium text-gray-900 underline">politique de confidentialité</span>.
+            J&apos;accepte les{" "}
+            <Link href="/cgu" target="_blank" className="font-medium text-emerald-900 underline hover:text-emerald-950">
+              Conditions Générales d&apos;Utilisation
+            </Link>{" "}
+            et la{" "}
+            <Link href="/confidentialite" target="_blank" className="font-medium text-emerald-900 underline hover:text-emerald-950">
+              politique de confidentialité
+            </Link>.
           </label>
         </div>
 
