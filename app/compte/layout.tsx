@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import { LogoMarkIcon } from "@/app/components/icons/misc-icons";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const menuItems = [
     {
@@ -46,61 +49,133 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     },
   ];
 
+  const currentLabel = menuItems.find((item) => item.href === pathname)?.label ?? "Espace client";
+
+  // Ferme le panneau mobile à chaque changement de page
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [pathname]);
+
+  // Empêche le scroll du fond quand le panneau mobile est ouvert
+  useEffect(() => {
+    document.body.style.overflow = isSidebarOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isSidebarOpen]);
+
+  const sidebarContent = (
+    <>
+      <div className="space-y-8">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-3">
+          <LogoMarkIcon className="h-9 w-9 text-emerald-900" />
+          <span className="font-[family-name:var(--font-display)] text-base font-bold text-emerald-950 tracking-tight">
+            Résidence Émeraude
+          </span>
+        </Link>
+
+        {/* Navigation links */}
+        <nav className="space-y-1.5">
+          {menuItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-medium transition-colors ${
+                  isActive
+                    ? "bg-emerald-50 text-emerald-950 font-semibold"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <span className={isActive ? "text-emerald-900" : "text-gray-400"}>{item.icon}</span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Déconnexion */}
+      <div className="pt-6 border-t border-gray-100">
+        <Link
+          href="/connexion"
+          className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium text-orange-700 hover:bg-orange-50 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          Déconnexion
+        </Link>
+      </div>
+    </>
+  );
+
   return (
-    <div className="min-h-screen flex bg-gray-50/50">
-      {/* Sidebar fixe */}
-      <aside className="w-72 bg-white border-r border-gray-100 flex flex-col justify-between p-6 shrink-0">
-        <div className="space-y-8">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <LogoMarkIcon className="h-9 w-9 text-emerald-900" />
-            <span className="font-[family-name:var(--font-display)] text-base font-bold text-emerald-950 tracking-tight">
-              Résidence Émeraude
-            </span>
-          </Link>
+    <div className="min-h-screen bg-gray-50/50 lg:flex">
+      {/* Barre mobile (visible en dessous de lg) */}
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3.5 lg:hidden">
+        <Link href="/" className="flex items-center gap-2.5">
+          <LogoMarkIcon className="h-8 w-8 text-emerald-900" />
+          <span className="font-[family-name:var(--font-display)] text-sm font-bold text-emerald-950 tracking-tight">
+            {currentLabel}
+          </span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="Ouvrir le menu du compte"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-emerald-950 hover:bg-gray-100 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
 
-          {/* Navigation links */}
-          <nav className="space-y-1.5">
-            {menuItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-xs font-medium transition-colors ${
-                    isActive
-                      ? "bg-emerald-50 text-emerald-950 font-semibold"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }`}
-                >
-                  <span className={isActive ? "text-emerald-900" : "text-gray-400"}>
-                    {item.icon}
-                  </span>
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Déconnexion */}
-        <div className="pt-6 border-t border-gray-100">
-          <Link
-            href="/connexion"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium text-orange-700 hover:bg-orange-50 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Déconnexion
-          </Link>
-        </div>
+      {/* Sidebar fixe (desktop) */}
+      <aside className="hidden lg:flex w-72 shrink-0 flex-col justify-between border-r border-gray-100 bg-white p-6">
+        {sidebarContent}
       </aside>
 
+      {/* Sidebar en panneau glissant (mobile / tablette) */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="fixed inset-0 z-40 bg-black/30 lg:hidden"
+            />
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="fixed inset-y-0 left-0 z-50 flex w-[85%] max-w-72 flex-col justify-between bg-white p-6 shadow-xl lg:hidden"
+            >
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(false)}
+                aria-label="Fermer le menu"
+                className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              {sidebarContent}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* Contenu principal de la page courante */}
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
+      <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }

@@ -1,140 +1,121 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 
-export default function ReservationsPage() {
-  const reservations = [
-    {
-      ref: "RE-1049",
-      bien: "Appartement F3 Grand Standing",
-      lieu: "Bonapriso, Douala",
-      dates: "12 - 19 Nov 2025",
-      montant: "350 000 FCFA",
-      statut: "Confirmée",
-      statutColor: "bg-emerald-50 text-emerald-900",
-    },
-    {
-      ref: "RE-0943",
-      bien: "Chambre VIP Emeraude",
-      lieu: "Hôtel Bonapriso",
-      dates: "01 - 04 Nov 2025",
-      montant: "100 000 FCFA",
-      statut: "En cours",
-      statutColor: "bg-blue-50 text-blue-900",
-    },
-    {
-      ref: "RE-0892",
-      bien: "Bureau Privé - 4 Postes",
-      lieu: "Espace Coworking",
-      dates: "15 - 19 Oct 2025",
-      montant: "150 000 FCFA",
-      statut: "Terminée",
-      statutColor: "bg-gray-100 text-gray-700",
-    },
-    {
-      ref: "RE-0742",
-      bien: "Suite Royale Terracotta",
-      lieu: "Hôtel Bonapriso",
-      dates: "12 - 14 Sep 2025",
-      montant: "220 000 FCFA",
-      statut: "Annulée",
-      statutColor: "bg-orange-50 text-orange-800",
-    },
-  ];
-
+export default function DashboardPage() {
   return (
-    <div className="p-8 lg:p-12 max-w-7xl mx-auto space-y-8">
-      
+    <div className="p-4 space-y-6 sm:p-8 sm:space-y-8 lg:p-12 max-w-7xl mx-auto">
+
       {/* En-tête */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-emerald-950">Mes réservations</h1>
-          <p className="text-xs text-gray-500 mt-1">Retrouvez l&apos;historique complet de vos séjours et locations de bureaux.</p>
+          <h1 className="text-xl font-bold tracking-tight text-emerald-950 sm:text-2xl">Tableau de bord</h1>
+          <p className="text-xs text-gray-500 mt-1">Suivez votre activité et gérez vos réservations en temps réel.</p>
         </div>
-        <Link
-          href="/reservation"
-          className="rounded-xl bg-emerald-950 px-5 py-3 text-xs font-medium text-white shadow-md hover:bg-emerald-900 transition-colors text-center"
-        >
-          Nouvelle réservation
-        </Link>
-      </div>
 
-      {/* Filtres */}
-      <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 text-xs items-center">
-        <div>
-          <span className="block font-bold text-[10px] text-gray-400 uppercase mb-1">STATUT</span>
-          <select className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-gray-700 outline-none">
-            <option>Toutes les réservations</option>
-            <option>Confirmées</option>
-            <option>Terminées</option>
-          </select>
-        </div>
-        <div>
-          <span className="block font-bold text-[10px] text-gray-400 uppercase mb-1">PÉRIODE</span>
-          <select className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-gray-700 outline-none">
-            <option>Novembre 2025</option>
-            <option>Octobre 2025</option>
-            <option>Toute l&apos;année</option>
-          </select>
-        </div>
-        <div>
-          <span className="block font-bold text-[10px] text-gray-400 uppercase mb-1">TYPE DE BIEN</span>
-          <select className="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-gray-700 outline-none">
-            <option>Tous les biens</option>
-            <option>Chambres & Suites</option>
-            <option>Appartements</option>
-            <option>Bureaux</option>
-          </select>
-        </div>
-        <div className="flex items-end h-full pt-4 md:pt-0">
-          <button className="w-full bg-gray-100 text-gray-800 font-medium py-2.5 rounded-xl hover:bg-gray-200 transition-colors">
-            Filtrer
-          </button>
+        {/* Badge utilisateur connecté */}
+        <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl shadow-sm border border-gray-100 self-start sm:self-auto">
+          <div className="w-9 h-9 shrink-0 rounded-full bg-emerald-950 text-white flex items-center justify-center font-bold text-xs">
+            JP
+          </div>
+          <div className="text-left">
+            <p className="text-xs font-bold text-gray-900">Jean-Pierre Ngassa</p>
+            <p className="text-[10px] text-emerald-800 font-medium">Membre Privilège</p>
+          </div>
         </div>
       </div>
 
-      {/* Tableau des réservations */}
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden text-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50/80 text-gray-400 uppercase tracking-wider text-[10px] border-b border-gray-100">
-                <th className="p-4 font-bold">Référence</th>
-                <th className="p-4 font-bold">Bien / Catégorie</th>
-                <th className="p-4 font-bold">Dates</th>
-                <th className="p-4 font-bold">Montant</th>
-                <th className="p-4 font-bold">Statut</th>
-                <th className="p-4 font-bold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-gray-700">
-              {reservations.map((item, index) => (
-                <tr key={index} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="p-4 font-bold text-emerald-950">{item.ref}</td>
-                  <td className="p-4">
-                    <p className="font-semibold text-gray-900">{item.bien}</p>
-                    <p className="text-[11px] text-gray-400">{item.lieu}</p>
-                  </td>
-                  <td className="p-4 font-medium text-gray-600">{item.dates}</td>
-                  <td className="p-4 font-bold text-gray-900">{item.montant}</td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full font-bold text-[10px] ${item.statutColor}`}>
-                      {item.statut}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right space-x-2">
-                    <button className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition-colors">
-                      Voir
-                    </button>
-                    <button className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 rounded-lg font-medium transition-colors">
-                      Reçu
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Bannière de bienvenue */}
+      <div className="relative rounded-3xl overflow-hidden bg-emerald-950 text-white p-6 shadow-md sm:p-8">
+        <div className="absolute inset-0 opacity-20 bg-cover bg-center" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80')` }} />
+        <div className="relative z-10 max-w-xl space-y-2">
+          <h2 className="text-lg font-bold sm:text-xl">Bienvenue, Jean-Pierre !</h2>
+          <p className="text-xs text-gray-200 leading-relaxed">
+            Votre séjour d&apos;exception à Douala vous attend. Tout est prêt pour vous offrir un confort absolu et des services de premier ordre.
+          </p>
         </div>
+      </div>
+
+      {/* Statistiques rapides */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+        <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-2 sm:p-6">
+          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Réservations actives</p>
+          <p className="text-2xl font-extrabold text-emerald-950 sm:text-3xl">2</p>
+          <p className="text-[11px] text-gray-500">Prochain séjour : 12 Nov 2025</p>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-2 sm:p-6">
+          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Total dépensé</p>
+          <p className="text-2xl font-extrabold text-emerald-950 sm:text-3xl">450 000 FCFA</p>
+          <p className="text-[11px] text-gray-500">3 factures réglées</p>
+        </div>
+
+        <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-2 sm:p-6 sm:col-span-2 lg:col-span-1">
+          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Points Fidélité</p>
+          <p className="text-2xl font-extrabold text-orange-700 sm:text-3xl">120 pts</p>
+          <p className="text-[11px] text-gray-500">Statut Émeraude Club active</p>
+        </div>
+      </div>
+
+      {/* Grille inférieure (Prochain séjour & Actions rapides) */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+
+        {/* Votre Prochain Séjour */}
+        <div className="lg:col-span-7 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-4 sm:p-6">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-sm text-gray-900">Votre Prochain Séjour</h3>
+            <span className="bg-emerald-50 text-emerald-900 text-[10px] font-bold px-3 py-1 rounded-full">Confirmée</span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 bg-gray-50/60 p-4 rounded-2xl border border-gray-100 sm:items-center">
+            <img
+              src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=400&q=80"
+              alt="Appartement"
+              className="w-full h-40 object-cover rounded-xl sm:w-32 sm:h-24"
+            />
+            <div className="space-y-1 w-full text-xs">
+              <h4 className="font-bold text-gray-900">Appartement F3 Grand Standing</h4>
+              <p className="text-gray-500">Bonapriso, Douala - Cameroun</p>
+              <p className="text-emerald-950 font-medium">Du 12 Nov au 19 Nov 2025 (7 Nuits)</p>
+              <p className="text-orange-700 font-bold pt-1">Total : 350 000 FCFA</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+            <Link href="/compte/reservations" className="flex-1 bg-emerald-950 text-white text-center py-2.5 rounded-xl text-xs font-medium hover:bg-emerald-900 transition-colors">
+              Voir les détails
+            </Link>
+            <button className="flex-1 bg-gray-100 text-gray-700 text-center py-2.5 rounded-xl text-xs font-medium hover:bg-gray-200 transition-colors">
+              Télécharger le reçu
+            </button>
+          </div>
+        </div>
+
+        {/* Actions Rapides */}
+        <div className="lg:col-span-5 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-4 sm:p-6">
+          <h3 className="font-bold text-sm text-gray-900">Actions Rapides</h3>
+
+          <div className="space-y-2 text-xs">
+            <Link href="/reservation" className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-950 transition-colors font-medium text-gray-700">
+              <span>Réserver un nouveau séjour</span>
+              <span>›</span>
+            </Link>
+            <Link href="/bureaux" className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-950 transition-colors font-medium text-gray-700">
+              <span>Louer un espace de bureau</span>
+              <span>›</span>
+            </Link>
+            <Link href="/contact" className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-950 transition-colors font-medium text-gray-700">
+              <span>Demander une navette aéroport</span>
+              <span>›</span>
+            </Link>
+            <Link href="/contact" className="flex items-center justify-between p-3.5 rounded-xl bg-gray-50 hover:bg-emerald-50 hover:text-emerald-950 transition-colors font-medium text-gray-700">
+              <span>Contacter l&apos;assistance VIP</span>
+              <span>›</span>
+            </Link>
+          </div>
+        </div>
+
       </div>
 
     </div>
