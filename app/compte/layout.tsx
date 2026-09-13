@@ -113,7 +113,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   );
 
   return (
-    <div className="min-h-screen bg-gray-50/50 lg:flex">
+    <div className="min-h-screen bg-gray-50/50 lg:flex lg:h-screen lg:overflow-hidden">
       {/* Barre mobile (visible en dessous de lg) */}
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3.5 lg:hidden">
         <Link href="/" className="flex items-center gap-2.5">
@@ -134,8 +134,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         </button>
       </div>
 
-      {/* Sidebar fixe (desktop) */}
-      <aside className="hidden lg:flex w-72 shrink-0 flex-col justify-between border-r border-gray-100 bg-white p-6">
+      {/* Sidebar fixe (desktop) — occupe toute la hauteur et ne défile jamais avec le contenu */}
+      <aside className="hidden lg:flex w-72 shrink-0 flex-col justify-between border-r border-gray-100 bg-white p-6 lg:h-screen lg:overflow-y-auto">
         {sidebarContent}
       </aside>
 
@@ -174,8 +174,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         )}
       </AnimatePresence>
 
-      {/* Contenu principal de la page courante */}
-      <main className="min-w-0 flex-1 overflow-y-auto">{children}</main>
+      {/* Contenu principal de la page courante — seul cet espace défile en desktop */}
+      <main className="min-w-0 flex-1 lg:h-screen lg:overflow-y-auto">{children}</main>
     </div>
   );
 }
