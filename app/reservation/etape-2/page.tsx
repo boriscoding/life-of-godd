@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { StepProgressBar } from "@/app/reservation/StepProgressBar";
 
 export default function ReservationEtape2() {
   const [bien, setBien] = useState({
@@ -62,28 +63,19 @@ export default function ReservationEtape2() {
 
   return (
     <div className="bg-white min-h-screen text-gray-800">
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 bg-white">
-        
-        <div className="flex items-center justify-between border-b border-gray-100 pb-6 text-xs font-semibold text-gray-500 bg-white">
-          <span className="text-emerald-900">✓ Sélection</span>
-          <span className="text-emerald-950 font-bold flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-emerald-950 text-white flex items-center justify-center text-[10px]">2</span> Dates & Durée
-          </span>
-          <span>3 Informations</span>
-          <span>4 Récapitulatif</span>
-          <span>5 Paiement</span>
-          <span>6 Confirmation</span>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6 bg-white sm:px-6 sm:py-8 sm:space-y-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start bg-white">
+        <StepProgressBar current={2} />
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8 items-start bg-white">
           {/* Calendrier interactif et éditable */}
-          <div className="lg:col-span-8 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold text-emerald-950">Sélectionnez vos dates de séjour</h2>
-              <span className="text-[11px] text-gray-400 bg-gray-50 px-3 py-1 rounded-xl">Cliquez sur une date de début puis de fin</span>
+          <div className="lg:col-span-8 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-5 sm:p-8 sm:space-y-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+              <h2 className="text-base font-bold text-emerald-950 sm:text-lg">Sélectionnez vos dates de séjour</h2>
+              <span className="text-[11px] text-gray-400 bg-gray-50 px-3 py-1 rounded-xl self-start sm:self-auto">Cliquez sur une date de début puis de fin</span>
             </div>
             <div className="text-center font-bold text-sm text-gray-800">Novembre 2025</div>
-            <div className="grid grid-cols-7 gap-2 text-center text-xs text-gray-500 font-medium">
+            <div className="grid grid-cols-7 gap-1 text-center text-[10px] text-gray-500 font-medium sm:gap-2 sm:text-xs">
               <span>Dim</span><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span>
               {Array.from({ length: 30 }).map((_, i) => {
                 const jour = i + 1;
@@ -95,11 +87,11 @@ export default function ReservationEtape2() {
                     type="button"
                     key={i}
                     onClick={() => handleDayClick(jour)}
-                    className={`py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      isStartOrEnd 
-                        ? 'bg-emerald-900 text-white shadow-sm' 
-                        : isSelected 
-                        ? 'bg-emerald-50 text-emerald-950' 
+                    className={`py-2.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer sm:py-3 sm:rounded-xl sm:text-xs ${
+                      isStartOrEnd
+                        ? 'bg-emerald-900 text-white shadow-sm'
+                        : isSelected
+                        ? 'bg-emerald-50 text-emerald-950'
                         : 'hover:bg-gray-50 text-gray-700'
                     }`}
                   >
@@ -111,10 +103,10 @@ export default function ReservationEtape2() {
           </div>
 
           {/* Résumé latéral dynamique & mis à jour en temps réel */}
-          <div className="lg:col-span-4 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4 text-xs">
+          <div className="lg:col-span-4 bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-4 text-xs sm:p-6">
             <h3 className="font-bold text-sm text-gray-900">Votre sélection</h3>
             <div className="flex gap-3 items-center bg-gray-50 p-3 rounded-2xl">
-              <img src={bien.image} alt={bien.titre} className="w-16 h-16 object-cover rounded-xl" />
+              <img src={bien.image} alt={bien.titre} className="w-16 h-16 shrink-0 object-cover rounded-xl" />
               <div>
                 <p className="font-bold text-gray-900">{bien.titre}</p>
                 <p className="text-[10px] text-gray-500">Bonapriso, Douala</p>
@@ -133,11 +125,11 @@ export default function ReservationEtape2() {
               <span>Total estimé</span>
               <span className="text-orange-700">{totalTarif.toLocaleString()} FCFA</span>
             </div>
-            <div className="flex gap-2 pt-2">
-              <Link href="/reservation" className="w-1/3 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition-colors flex items-center justify-center">
+            <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+              <Link href="/reservation" className="sm:w-1/3 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition-colors flex items-center justify-center">
                 Retour
               </Link>
-              <Link href="/reservation/etape-3" className="w-2/3 text-center bg-orange-700 hover:bg-orange-800 text-white py-3 rounded-xl font-medium shadow-md transition-colors flex items-center justify-center">
+              <Link href="/reservation/etape-3" className="sm:w-2/3 text-center bg-orange-700 hover:bg-orange-800 text-white py-3 rounded-xl font-medium shadow-md transition-colors flex items-center justify-center">
                 Continuer
               </Link>
             </div>

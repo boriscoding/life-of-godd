@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { StepProgressBar } from "@/app/reservation/StepProgressBar";
 
 interface Hebergement {
   id: string;
@@ -66,40 +67,30 @@ export default function ReservationEtape1() {
     // Sauvegarde par défaut du premier choix si rien n'a été cliqué explicitement
     const currentSelected = HEBERGEMENTS.find((h) => h.id === selectedBienId) || HEBERGEMENTS[0];
     localStorage.setItem("reservation_bien", JSON.stringify(currentSelected));
-    
+
     // Redirection vers l'étape suivante (Dates & Durée)
     router.push("/reservation/etape-2");
   };
 
   return (
     <div className="bg-white min-h-screen text-gray-800">
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 bg-white">
-        
-        {/* Barre de progression */}
-        <div className="flex items-center justify-between border-b border-gray-100 pb-6 text-xs font-semibold text-gray-500 bg-white">
-          <span className="text-emerald-950 font-bold flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-emerald-950 text-white flex items-center justify-center text-[10px]">1</span> Sélection
-          </span>
-          <span>2 Dates & Durée</span>
-          <span>3 Informations</span>
-          <span>4 Récapitulatif</span>
-          <span>5 Paiement</span>
-          <span>6 Confirmation</span>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6 bg-white sm:px-6 sm:py-8 sm:space-y-8">
+
+        <StepProgressBar current={1} />
 
         {/* En-tête de page */}
         <div className="space-y-2">
           <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full">
             Hébergements disponibles
           </span>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-gray-900">
+          <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl lg:text-3xl">
             Trouvez l'espace idéal pour votre séjour à Douala
           </h1>
         </div>
 
-        <form onSubmit={handleNextStep} className="space-y-8">
+        <form onSubmit={handleNextStep} className="space-y-6 sm:space-y-8">
           {/* Grille des cartes de sélection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {HEBERGEMENTS.map((bien) => {
               const isSelected = selectedBienId === bien.id;
               return (
@@ -112,7 +103,7 @@ export default function ReservationEtape1() {
                 >
                   <div>
                     {/* Image du bien */}
-                    <div className="relative h-48 w-full overflow-hidden bg-gray-100">
+                    <div className="relative h-44 w-full overflow-hidden bg-gray-100 sm:h-48">
                       <img
                         src={bien.image}
                         alt={bien.nom}
@@ -124,9 +115,9 @@ export default function ReservationEtape1() {
                     </div>
 
                     {/* Contenu textuel */}
-                    <div className="p-6 space-y-4">
+                    <div className="p-5 space-y-4 sm:p-6">
                       <h3 className="font-bold text-base text-gray-900 flex items-center gap-2">
-                        <span className={`w-3 h-3 rounded-full ${isSelected ? "bg-emerald-900" : "bg-gray-300"}`}></span>
+                        <span className={`w-3 h-3 shrink-0 rounded-full ${isSelected ? "bg-emerald-900" : "bg-gray-300"}`}></span>
                         {bien.nom}
                       </h3>
 
@@ -144,7 +135,7 @@ export default function ReservationEtape1() {
                   </div>
 
                   {/* Pied de carte : Prix et bouton de sélection */}
-                  <div className="p-6 pt-0 flex items-center justify-between border-t border-gray-100 mt-4">
+                  <div className="p-5 pt-0 flex items-center justify-between gap-3 border-t border-gray-100 mt-4 sm:p-6 sm:pt-0">
                     <div>
                       <span className="block text-[10px] text-gray-400 uppercase font-semibold">À partir de</span>
                       <span className="text-sm font-extrabold text-emerald-950">
@@ -153,7 +144,7 @@ export default function ReservationEtape1() {
                     </div>
                     <button
                       type="button"
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
+                      className={`shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
                         isSelected
                           ? "bg-emerald-950 text-white shadow-md"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -168,16 +159,16 @@ export default function ReservationEtape1() {
           </div>
 
           {/* Boutons de navigation bas de page */}
-          <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+          <div className="flex flex-col-reverse gap-3 pt-6 border-t border-gray-100 sm:flex-row sm:items-center sm:justify-between">
             <Link
               href="/"
-              className="px-6 py-3.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-xs transition-colors flex items-center gap-2"
+              className="px-6 py-3.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-xs transition-colors flex items-center justify-center gap-2"
             >
               &larr; Retour à l'accueil
             </Link>
             <button
               type="submit"
-              className="px-8 py-3.5 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-white font-bold text-xs shadow-md transition-colors flex items-center gap-2"
+              className="px-8 py-3.5 rounded-xl bg-emerald-950 hover:bg-emerald-900 text-white font-bold text-xs shadow-md transition-colors flex items-center justify-center gap-2"
             >
               Continuer vers l'étape suivante &rarr;
             </button>

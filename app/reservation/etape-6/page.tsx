@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { StepProgressBar } from "@/app/reservation/StepProgressBar";
 
 export default function ReservationEtape6() {
   // États dynamiques pour la confirmation
@@ -57,35 +58,25 @@ export default function ReservationEtape6() {
 
   return (
     <div className="bg-white min-h-screen text-gray-800">
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 bg-white">
-        
-        {/* Barre de progression des étapes */}
-        <div className="flex items-center justify-between border-b border-gray-100 pb-6 text-xs font-semibold text-gray-500 bg-white">
-          <span className="text-emerald-900">✓ Sélection</span>
-          <span className="text-emerald-900">✓ Dates & Durée</span>
-          <span className="text-emerald-900">✓ Informations</span>
-          <span className="text-emerald-900">✓ Récapitulatif</span>
-          <span className="text-emerald-900">✓ Paiement</span>
-          <span className="text-emerald-950 font-bold flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-emerald-950 text-white flex items-center justify-center text-[10px]">6</span> Confirmation
-          </span>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6 bg-white sm:px-6 sm:py-8 sm:space-y-8">
 
-        <div className="space-y-8 bg-white py-4">
-          
+        <StepProgressBar current={6} />
+
+        <div className="space-y-6 bg-white py-2 sm:space-y-8 sm:py-4">
+
           {/* En-tête de confirmation */}
           <div className="text-center space-y-3">
             <div className="w-14 h-14 bg-emerald-950 text-white rounded-full flex items-center justify-center mx-auto shadow-sm text-xl">
               ✓
             </div>
-            <h2 className="text-2xl font-bold text-emerald-950">Réservation confirmée !</h2>
-            <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-1.5 rounded-full text-xs font-semibold text-emerald-900">
+            <h2 className="text-xl font-bold text-emerald-950 sm:text-2xl">Réservation confirmée !</h2>
+            <div className="inline-flex flex-wrap items-center justify-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-1.5 rounded-full text-xs font-semibold text-emerald-900">
               <span>Référence de réservation :</span>
               {isEditing ? (
-                <input 
-                  type="text" 
-                  value={reference} 
-                  onChange={(e) => setReference(e.target.value)} 
+                <input
+                  type="text"
+                  value={reference}
+                  onChange={(e) => setReference(e.target.value)}
                   className="bg-white border border-emerald-300 px-2 py-0.5 rounded outline-none text-emerald-950 font-bold"
                 />
               ) : (
@@ -95,19 +86,19 @@ export default function ReservationEtape6() {
           </div>
 
           {/* Bloc Détails du séjour (Éditable et Dynamique) */}
-          <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6 text-xs max-w-4xl mx-auto relative">
-            
-            <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+          <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-sm space-y-6 text-xs max-w-4xl mx-auto relative sm:p-8">
+
+            <div className="flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
               <h3 className="text-sm font-bold text-emerald-950 uppercase tracking-wide">Détails de votre séjour</h3>
-              <button 
+              <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl font-medium transition-colors cursor-pointer"
+                className="self-start text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl font-medium transition-colors cursor-pointer sm:self-auto"
               >
                 {isEditing ? "Enregistrer les modifications" : "✏️ Modifier les détails"}
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-4">
                 <div>
                   <span className="text-[10px] text-gray-400 block uppercase font-medium">Hébergement</span>
@@ -161,23 +152,23 @@ export default function ReservationEtape6() {
           </div>
 
           {/* Notification email */}
-          <div className="max-w-4xl mx-auto bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center gap-3 text-xs text-gray-600">
-            <span className="text-base">🔔</span>
+          <div className="max-w-4xl mx-auto bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-start gap-3 text-xs text-gray-600 sm:items-center">
+            <span className="text-base shrink-0">🔔</span>
             <p>
-              Un e-mail de confirmation contenant votre reçu détaillé et votre contrat de location a été envoyé à l'adresse <strong className="text-gray-800">{emailClient}</strong>.
+              Un e-mail de confirmation contenant votre reçu détaillé et votre contrat de location a été envoyé à l'adresse <strong className="text-gray-800 break-all">{emailClient}</strong>.
             </p>
           </div>
 
           {/* Boutons d'action finale */}
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row gap-4 justify-center pt-2">
-            <button 
+            <button
               onClick={handleDownloadPDF}
               className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 px-6 py-3.5 rounded-xl font-medium shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>📥</span> Télécharger le reçu PDF
             </button>
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="bg-emerald-950 hover:bg-emerald-900 text-white px-8 py-3.5 rounded-xl font-medium shadow-md transition-colors flex items-center justify-center gap-2 text-center"
             >
               Accéder à mon espace client →

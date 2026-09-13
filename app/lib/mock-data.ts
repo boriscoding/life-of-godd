@@ -1,0 +1,282 @@
+// Mock data — front-end only. Replace with API calls once the backend is wired up.
+
+export type StatutBien = "Disponible" | "Occupé" | "Maintenance";
+export type StatutReservation = "Confirmé" | "En attente" | "Annulé" | "Terminé";
+export type StatutPaiement = "Payé" | "En attente" | "Échoué" | "Remboursé";
+
+export const biens = [
+  {
+    id: "b1",
+    nom: "Appartement F3 Bonapriso",
+    categorie: "Appartement",
+    prix: 150000,
+    capacite: "4 Voyageurs",
+    statut: "Disponible" as StatutBien,
+    image: "linear-gradient(135deg,#c9a876,#8b6f47)",
+  },
+  {
+    id: "b2",
+    nom: "Chambre Émeraude Premium",
+    categorie: "Chambre",
+    prix: 55000,
+    capacite: "2 Voyageurs",
+    statut: "Occupé" as StatutBien,
+    image: "linear-gradient(135deg,#7a9b8e,#4a6d5f)",
+  },
+  {
+    id: "b3",
+    nom: "Bureau Coworking Élite",
+    categorie: "Bureau d'Affaires",
+    prix: 25000,
+    capacite: "1 Voyageur",
+    statut: "Maintenance" as StatutBien,
+    image: "linear-gradient(135deg,#b0b7ad,#6f7a6e)",
+  },
+  {
+    id: "b4",
+    nom: "Suite Deido Vue Fleuve",
+    categorie: "Appartement",
+    prix: 210000,
+    capacite: "5 Voyageurs",
+    statut: "Disponible" as StatutBien,
+    image: "linear-gradient(135deg,#d7b98a,#9c7b4f)",
+  },
+  {
+    id: "b5",
+    nom: "Chambre Akwa Confort",
+    categorie: "Chambre",
+    prix: 48000,
+    capacite: "2 Voyageurs",
+    statut: "Disponible" as StatutBien,
+    image: "linear-gradient(135deg,#a9b8c2,#5f7280)",
+  },
+  {
+    id: "b6",
+    nom: "Bureau Privé Bonanjo",
+    categorie: "Bureau d'Affaires",
+    prix: 32000,
+    capacite: "3 Voyageurs",
+    statut: "Occupé" as StatutBien,
+    image: "linear-gradient(135deg,#c2b0a0,#7a675a)",
+  },
+];
+
+export const clients = [
+  {
+    id: "c1",
+    initiales: "SM",
+    nom: "Samuel Mpondo",
+    email: "samuel.mpondo@gmail.com",
+    telephone: "+237 677 12 34 56",
+    reservations: 6,
+    totalDepense: 980000,
+    statut: "Fidèle" as const,
+    depuis: "Client depuis Mars 2024",
+  },
+  {
+    id: "c2",
+    initiales: "FO",
+    nom: "Florence Onana",
+    email: "f.onana@yahoo.fr",
+    telephone: "+237 699 88 21 40",
+    reservations: 2,
+    totalDepense: 220000,
+    statut: "Actif" as const,
+    depuis: "Client depuis Sept 2025",
+  },
+  {
+    id: "c3",
+    initiales: "JN",
+    nom: "Jean Ngassa",
+    email: "jean.ngassa@outlook.com",
+    telephone: "+237 655 40 12 09",
+    reservations: 1,
+    totalDepense: 150000,
+    statut: "Nouveau" as const,
+    depuis: "Client depuis Nov 2025",
+  },
+  {
+    id: "c4",
+    initiales: "AE",
+    nom: "Aïcha Etoundi",
+    email: "aicha.etoundi@gmail.com",
+    telephone: "+237 690 77 65 33",
+    reservations: 9,
+    totalDepense: 1450000,
+    statut: "Fidèle" as const,
+    depuis: "Client depuis Janv 2023",
+  },
+  {
+    id: "c5",
+    initiales: "PB",
+    nom: "Paul Biloa",
+    email: "p.biloa@hotmail.com",
+    telephone: "+237 674 22 18 90",
+    reservations: 3,
+    totalDepense: 340000,
+    statut: "Actif" as const,
+    depuis: "Client depuis Juin 2025",
+  },
+];
+
+export const reservations = [
+  {
+    ref: "#RE-1092",
+    clientInitiales: "SM",
+    client: "Samuel Mpondo",
+    bien: "Appartement F3 Standing",
+    dates: "12 Nov - 19 Nov (7 Nuits)",
+    montant: 350000,
+    statut: "Confirmé" as StatutReservation,
+  },
+  {
+    ref: "#RE-1093",
+    clientInitiales: "FO",
+    client: "Florence Onana",
+    bien: "Chambre Émeraude Premium",
+    dates: "15 Nov - 17 Nov (2 Nuits)",
+    montant: 110000,
+    statut: "En attente" as StatutReservation,
+  },
+  {
+    ref: "#RE-1094",
+    clientInitiales: "JN",
+    client: "Jean Ngassa",
+    bien: "Bureau Coworking Élite",
+    dates: "18 Nov (1 Jour)",
+    montant: 25000,
+    statut: "Confirmé" as StatutReservation,
+  },
+  {
+    ref: "#RE-1095",
+    clientInitiales: "AE",
+    client: "Aïcha Etoundi",
+    bien: "Suite Deido Vue Fleuve",
+    dates: "20 Nov - 27 Nov (7 Nuits)",
+    montant: 1470000,
+    statut: "Confirmé" as StatutReservation,
+  },
+  {
+    ref: "#RE-1096",
+    clientInitiales: "PB",
+    client: "Paul Biloa",
+    bien: "Chambre Akwa Confort",
+    dates: "22 Nov - 23 Nov (1 Nuit)",
+    montant: 48000,
+    statut: "Annulé" as StatutReservation,
+  },
+  {
+    ref: "#RE-1097",
+    clientInitiales: "SM",
+    client: "Samuel Mpondo",
+    bien: "Bureau Privé Bonanjo",
+    dates: "5 Nov - 8 Nov (3 Jours)",
+    montant: 96000,
+    statut: "Terminé" as StatutReservation,
+  },
+];
+
+export const paiements = [
+  {
+    ref: "#PA-4581",
+    client: "Samuel Mpondo",
+    reservation: "#RE-1092",
+    methode: "Mobile Money",
+    montant: 350000,
+    date: "12 Nov 2025",
+    statut: "Payé" as StatutPaiement,
+  },
+  {
+    ref: "#PA-4582",
+    client: "Florence Onana",
+    reservation: "#RE-1093",
+    methode: "Virement bancaire",
+    montant: 110000,
+    date: "13 Nov 2025",
+    statut: "En attente" as StatutPaiement,
+  },
+  {
+    ref: "#PA-4583",
+    client: "Jean Ngassa",
+    reservation: "#RE-1094",
+    methode: "Carte bancaire",
+    montant: 25000,
+    date: "14 Nov 2025",
+    statut: "Payé" as StatutPaiement,
+  },
+  {
+    ref: "#PA-4584",
+    client: "Aïcha Etoundi",
+    reservation: "#RE-1095",
+    methode: "Mobile Money",
+    montant: 1470000,
+    date: "15 Nov 2025",
+    statut: "Payé" as StatutPaiement,
+  },
+  {
+    ref: "#PA-4585",
+    client: "Paul Biloa",
+    reservation: "#RE-1096",
+    methode: "Mobile Money",
+    montant: 48000,
+    date: "16 Nov 2025",
+    statut: "Remboursé" as StatutPaiement,
+  },
+  {
+    ref: "#PA-4586",
+    client: "Samuel Mpondo",
+    reservation: "#RE-1097",
+    methode: "Carte bancaire",
+    montant: 96000,
+    date: "5 Nov 2025",
+    statut: "Échoué" as StatutPaiement,
+  },
+];
+
+export const revenusMensuels = [
+  { mois: "Mai", montant: 2.4 },
+  { mois: "Jun", montant: 2.9 },
+  { mois: "Jul", montant: 3.2 },
+  { mois: "Août", montant: 4.1 },
+  { mois: "Sept", montant: 3.8 },
+  { mois: "Oct", montant: 4.3 },
+];
+
+export const revenusParCategorie = [
+  { categorie: "Appartements", pourcentage: 55, montant: "2.3M", couleur: "var(--em-sidebar)" },
+  { categorie: "Chambres d'Hôtel", pourcentage: 30, montant: "1.2M", couleur: "var(--em-accent)" },
+  { categorie: "Bureaux d'Affaires", pourcentage: 15, montant: "0.7M", couleur: "#c9a13b" },
+];
+
+export const joursCalendrier: Record<
+  number,
+  { statut: "libre" | "occupe" | "maintenance"; label: string }
+> = {
+  1: { statut: "libre", label: "Libre" },
+  2: { statut: "libre", label: "Libre" },
+  3: { statut: "occupe", label: "Réservé (Onana)" },
+  4: { statut: "occupe", label: "Réservé (Onana)" },
+  5: { statut: "occupe", label: "Réservé (Onana)" },
+  6: { statut: "occupe", label: "Réservé (Onana)" },
+  7: { statut: "occupe", label: "Réservé (Onana)" },
+  8: { statut: "libre", label: "Libre" },
+  9: { statut: "libre", label: "Libre" },
+  10: { statut: "libre", label: "Libre" },
+  11: { statut: "libre", label: "Libre" },
+  12: { statut: "libre", label: "Libre" },
+  13: { statut: "maintenance", label: "Travaux" },
+  14: { statut: "maintenance", label: "Travaux" },
+  15: { statut: "maintenance", label: "Travaux" },
+  16: { statut: "libre", label: "Libre" },
+  17: { statut: "occupe", label: "Mpondo (F3)" },
+  18: { statut: "occupe", label: "Mpondo (F3)" },
+  19: { statut: "occupe", label: "Mpondo (F3)" },
+  20: { statut: "occupe", label: "Mpondo (F3)" },
+  21: { statut: "occupe", label: "Mpondo (F3)" },
+  22: { statut: "occupe", label: "Mpondo (F3)" },
+  23: { statut: "occupe", label: "Mpondo (F3)" },
+};
+
+export function formatFCFA(n: number) {
+  return `${n.toLocaleString("fr-FR")} FCFA`;
+}

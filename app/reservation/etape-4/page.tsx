@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { StepProgressBar } from "@/app/reservation/StepProgressBar";
 
 export default function ReservationEtape4() {
   // 1. États pour récupérer les données dynamiques des étapes précédentes
@@ -68,27 +69,17 @@ export default function ReservationEtape4() {
 
   return (
     <div className="bg-white min-h-screen text-gray-800">
-      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 bg-white">
-        
-        {/* Barre de progression */}
-        <div className="flex items-center justify-between border-b border-gray-100 pb-6 text-xs font-semibold text-gray-500 bg-white">
-          <span className="text-emerald-900">✓ Sélection</span>
-          <span className="text-emerald-900">✓ Dates & Durée</span>
-          <span className="text-emerald-900">✓ Informations</span>
-          <span className="text-emerald-950 font-bold flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-emerald-950 text-white flex items-center justify-center text-[10px]">4</span> Récapitulatif
-          </span>
-          <span>5 Paiement</span>
-          <span>6 Confirmation</span>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6 bg-white sm:px-6 sm:py-8 sm:space-y-8">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start bg-white">
+        <StepProgressBar current={4} />
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8 items-start bg-white">
           <div className="lg:col-span-8 space-y-6 bg-white">
             {/* Détail de la facture dynamique */}
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6 text-xs">
+            <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-6 text-xs sm:p-8">
               <h2 className="text-sm font-bold text-gray-900">Détail de votre facture avant paiement</h2>
-              
-              <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-2xl">
+
+              <div className="grid grid-cols-1 gap-4 p-4 bg-gray-50 rounded-2xl sm:grid-cols-3">
                 <div>
                   <span className="text-[10px] text-gray-400 block uppercase">Hébergement</span>
                   <span className="font-bold text-gray-900">{bien.titre}</span>
@@ -104,9 +95,9 @@ export default function ReservationEtape4() {
               </div>
 
               <div className="space-y-3 pt-2 text-gray-600">
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-2">
                   <span>Prix de la chambre ({bien.titre})</span>
-                  <span className="font-bold text-gray-900">{bien.prixNuite.toLocaleString()} FCFA / nuit</span>
+                  <span className="font-bold text-gray-900 text-right shrink-0">{bien.prixNuite.toLocaleString()} FCFA / nuit</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Nombre de nuits réservées</span>
@@ -116,40 +107,40 @@ export default function ReservationEtape4() {
                   <span>Sous-total hébergement</span>
                   <span>{sousTotalHebergement.toLocaleString()} FCFA</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-3">
                   <span>Frais de service & maintenance <span className="text-[10px] block text-gray-400">(Assistance 24/7, ménage quotidien)</span></span>
-                  <span className="font-bold text-gray-900">{fraisService.toLocaleString()} FCFA</span>
+                  <span className="font-bold text-gray-900 shrink-0">{fraisService.toLocaleString()} FCFA</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-3">
                   <span>Caution remboursable <span className="text-[10px] block text-gray-400">(Restituée intégralement le jour du départ)</span></span>
-                  <span className="font-bold text-gray-900">{caution.toLocaleString()} FCFA</span>
+                  <span className="font-bold text-gray-900 shrink-0">{caution.toLocaleString()} FCFA</span>
                 </div>
 
                 {/* Affichage de la réduction si un code promo est actif */}
                 {codeApplique && (
-                  <div className="flex justify-between text-emerald-700 font-semibold bg-emerald-50 p-2 rounded-xl">
+                  <div className="flex justify-between text-emerald-700 font-semibold bg-emerald-50 p-2 rounded-xl gap-2">
                     <span>Réduction appliquée ({codeApplique.code})</span>
-                    <span>- {codeApplique.reduction.toLocaleString()} FCFA</span>
+                    <span className="shrink-0">- {codeApplique.reduction.toLocaleString()} FCFA</span>
                   </div>
                 )}
               </div>
 
-              <div className="flex justify-between items-center bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 font-bold text-emerald-950 text-sm">
+              <div className="flex flex-col gap-1 items-start bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100 font-bold text-emerald-950 text-sm sm:flex-row sm:items-center sm:justify-between">
                 <span>Montant Total Garanti</span>
                 <span className="text-orange-700 text-base">{totalGlobal.toLocaleString()} FCFA</span>
               </div>
             </div>
 
             {/* Code promo éditable */}
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-3 text-xs">
+            <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-3 text-xs sm:p-6">
               <label className="block font-bold text-gray-700">AVEZ-VOUS UN CODE DE RÉDUCTION ?</label>
-              <form onSubmit={handleApplyPromo} className="flex gap-3">
-                <input 
-                  type="text" 
+              <form onSubmit={handleApplyPromo} className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
                   value={codePromoInput}
                   onChange={(e) => setCodePromoInput(e.target.value)}
-                  placeholder="Ex: EMERAUDE2025" 
-                  className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none uppercase font-medium text-gray-800" 
+                  placeholder="Ex: EMERAUDE2025"
+                  className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none uppercase font-medium text-gray-800"
                 />
                 <button type="submit" className="bg-emerald-950 text-white px-6 py-3 rounded-xl font-medium hover:bg-emerald-900 transition-colors cursor-pointer">
                   Appliquer
@@ -161,21 +152,21 @@ export default function ReservationEtape4() {
 
           {/* Action suivante & Annulation */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-emerald-950 text-white p-6 rounded-3xl space-y-4 shadow-md text-xs">
+            <div className="bg-emerald-950 text-white p-5 rounded-3xl space-y-4 shadow-md text-xs sm:p-6">
               <h3 className="font-bold text-sm">Prêt pour la prochaine étape ?</h3>
               <p className="text-gray-300 leading-relaxed">En confirmant ce récapitulatif, vous serez redirigé vers l'interface sécurisée de paiement (cartes bancaires ou paiement mobile camerounais).</p>
-              
-              <div className="flex gap-2 pt-2">
-                <Link href="/reservation/etape-3" className="w-1/3 text-center bg-emerald-900 hover:bg-emerald-800 text-gray-200 py-3 rounded-xl font-medium transition-colors flex items-center justify-center">
+
+              <div className="flex flex-col gap-2 pt-2 sm:flex-row">
+                <Link href="/reservation/etape-3" className="sm:w-1/3 text-center bg-emerald-900 hover:bg-emerald-800 text-gray-200 py-3 rounded-xl font-medium transition-colors flex items-center justify-center">
                   Retour
                 </Link>
-                <Link href="/reservation/etape-5" className="w-2/3 text-center bg-orange-700 hover:bg-orange-800 text-white py-3 rounded-xl font-medium shadow-md transition-colors flex items-center justify-center">
+                <Link href="/reservation/etape-5" className="sm:w-2/3 text-center bg-orange-700 hover:bg-orange-800 text-white py-3 rounded-xl font-medium shadow-md transition-colors flex items-center justify-center">
                   Procéder au paiement →
                 </Link>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-3 text-xs">
+            <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-3 text-xs sm:p-6">
               <h4 className="font-bold text-gray-900">Conditions d'annulation</h4>
               <ul className="space-y-2 text-gray-500 list-disc pl-4 leading-relaxed">
                 <li><strong className="text-gray-800">Annulation gratuite</strong> jusqu'à 48 heures avant l'heure d'arrivée prévue ({dates.debut} Nov 2025).</li>
