@@ -3,6 +3,7 @@
 import { use } from "react";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { SiteHeader } from "@/app/components/layout/Header";
 import { SiteFooter } from "@/app/components/layout/Footer";
@@ -42,11 +43,28 @@ const appartementsData: Record<string, any> = {
 export default function DetailAppartementPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const appartId = resolvedParams.id;
+  const router = useRouter();
 
-  // Récupération de l'appartement ou fallback sur le premier
   const appart = appartementsData[appartId] || appartementsData["f2-kribi"];
 
   const [selectedDates] = useState({ total: "135 000 FCFA" });
+
+  // Enregistre l'appartement choisi et saute directement à l'étape 2 (Dates & Durée)
+  const handleReserve = () => {
+    const bien = {
+      id: appartId,
+      nom: appart.title,
+      type: appart.category,
+      description: appart.description,
+      capacite: appart.pieces,
+      superficie: appart.superficie,
+      litOuEquipement: "",
+      prixNuite: Number(String(appart.price).replace(/[^\d]/g, "")),
+      image: appart.images[0],
+    };
+    localStorage.setItem("reservation_bien", JSON.stringify(bien));
+    router.push("/reservation/etape-2");
+  };
 
   const equipments = [
     {
@@ -168,12 +186,13 @@ export default function DetailAppartementPage({ params }: { params: Promise<{ id
               </div>
             </div>
 
-            <Link
-              href="/reservation"
+            <button
+              type="button"
+              onClick={handleReserve}
               className="block w-full rounded-xl bg-orange-700 py-3.5 text-center text-sm font-medium text-white shadow-md transition-all hover:bg-orange-800 hover:shadow-lg"
             >
               Réserver maintenant
-            </Link>
+            </button>
           </motion.div>
 
         </div>

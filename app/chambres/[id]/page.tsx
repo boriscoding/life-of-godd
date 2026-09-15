@@ -3,6 +3,7 @@
 import { use } from "react";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { SiteHeader } from "@/app/components/layout/Header";
 import { SiteFooter } from "@/app/components/layout/Footer";
@@ -64,14 +65,30 @@ const chambresData: Record<string, any> = {
 };
 
 export default function DetailChambrePage({ params }: { params: Promise<{ id: string }> }) {
-  // Résolution des params (requis dans les dernières versions de Next.js pour les Client/Server components selon l'archi)
   const resolvedParams = use(params);
   const chambreId = resolvedParams.id;
+  const router = useRouter();
 
-  // Récupération de la chambre correspondante ou fallback sur la première
   const chambre = chambresData[chambreId] || chambresData["1"];
 
   const [selectedDates] = useState({ total: "105 000 FCFA" });
+
+  // Enregistre la chambre choisie et saute directement à l'étape 2 (Dates & Durée)
+  const handleReserve = () => {
+    const bien = {
+      id: chambreId,
+      nom: chambre.title,
+      type: chambre.category,
+      description: chambre.description,
+      capacite: chambre.capacity,
+      superficie: "",
+      litOuEquipement: "",
+      prixNuite: Number(String(chambre.price).replace(/[^\d]/g, "")),
+      image: chambre.images[0],
+    };
+    localStorage.setItem("reservation_bien", JSON.stringify(bien));
+    router.push("/reservation/etape-2");
+  };
 
   const equipments = [
     {
@@ -206,12 +223,13 @@ export default function DetailChambrePage({ params }: { params: Promise<{ id: st
               </div>
             </div>
 
-            <Link
-              href="/reservation"
+            <button
+              type="button"
+              onClick={handleReserve}
               className="block w-full rounded-xl bg-orange-700 py-3.5 text-center text-sm font-medium text-white shadow-md transition-all hover:bg-orange-800 hover:shadow-lg"
             >
               Réserver maintenant
-            </Link>
+            </button>
           </motion.div>
 
         </div>

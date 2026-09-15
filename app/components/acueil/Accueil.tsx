@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { BedIcon, BriefcaseIcon, HomeIcon } from "@/app/components/icons/offer-icons";
 import { CalendarIcon, DoorIcon, SearchIcon, UsersIcon } from "@/app/components/icons/misc-icons";
@@ -33,6 +34,18 @@ const offres = [
   },
 ];
 
+// Informations de l'espace terrasse mis en avant juste avant la grille d'offres
+const terrasse = {
+  titre: "Terrasse Panoramique Émeraude",
+  texte:
+    "Un espace extérieur d'exception avec vue dégagée sur Bonapriso, idéal pour vos cocktails, réceptions privées ou moments de détente en plein air. Mobilier lounge haut de gamme, éclairage d'ambiance et service traiteur sur demande.",
+  image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1600&q=80",
+  capacite: "Jusqu'à 60 personnes",
+  superficie: "180 m²",
+  prixNuite: 60000,
+  id: "terrasse-panoramique",
+};
+
 const avis = [
   {
     note: 5,
@@ -51,6 +64,25 @@ const avis = [
 ];
 
 export default function AccueilPage() {
+  const router = useRouter();
+
+  // Enregistre la terrasse comme bien choisi et saute directement à l'étape 2 (Dates & Durée)
+  const handleReserveTerrasse = () => {
+    const bien = {
+      id: terrasse.id,
+      nom: terrasse.titre,
+      type: "Espace Événementiel / Terrasse",
+      description: terrasse.texte,
+      capacite: terrasse.capacite,
+      superficie: terrasse.superficie,
+      litOuEquipement: "",
+      prixNuite: terrasse.prixNuite,
+      image: terrasse.image,
+    };
+    localStorage.setItem("reservation_bien", JSON.stringify(bien));
+    router.push("/reservation/etape-2");
+  };
+
   return (
     <div className="bg-white text-gray-900 overflow-hidden">
       {/* Hero Section */}
@@ -177,6 +209,61 @@ export default function AccueilPage() {
               Rechercher
             </Link>
           </form>
+        </motion.div>
+      </section>
+
+      {/* Section Terrasse Panoramique — grand visuel mis en avant avant les offres */}
+      <section className="mx-auto max-w-7xl px-6 pt-20 lg:px-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="relative overflow-hidden rounded-3xl shadow-xl"
+        >
+          <div className="relative h-[420px] w-full sm:h-[480px] lg:h-[560px]">
+            <img
+              src={terrasse.image}
+              alt={terrasse.titre}
+              className="h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-950/90 via-gray-950/40 to-transparent" />
+
+            <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 lg:p-12">
+              <span className="inline-block rounded-full bg-orange-700 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white">
+                Espace événementiel
+              </span>
+
+              <h2 className="mt-4 max-w-xl text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
+                {terrasse.titre}
+              </h2>
+
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-gray-200 sm:text-base">
+                {terrasse.texte}
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-4 text-xs font-medium text-white/90 sm:text-sm">
+                <span className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-md">
+                  <UsersIcon className="h-4 w-4" />
+                  {terrasse.capacite}
+                </span>
+                <span className="rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-md">
+                  {terrasse.superficie}
+                </span>
+                <span className="rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-md">
+                  À partir de {terrasse.prixNuite.toLocaleString()} FCFA / soirée
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleReserveTerrasse}
+                className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-emerald-950 shadow-lg transition-all hover:bg-gray-100 hover:shadow-xl active:scale-95"
+              >
+                Réserver cet espace &rarr;
+              </button>
+            </div>
+          </div>
         </motion.div>
       </section>
 

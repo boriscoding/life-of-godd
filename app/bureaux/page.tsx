@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { SiteHeader } from "@/app/components/layout/Header";
 import { SiteFooter } from "@/app/components/layout/Footer";
 
 export default function BureauxPage() {
+  const router = useRouter();
+
   const bureaux = [
     {
       id: 1,
@@ -26,6 +29,23 @@ export default function BureauxPage() {
       image: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=800&q=80",
     },
   ];
+
+  // Enregistre le bureau choisi et saute directement à l'étape 2 (Dates & Durée)
+  const handleReserve = (bureau: (typeof bureaux)[number]) => {
+    const bien = {
+      id: String(bureau.id),
+      nom: bureau.title,
+      type: "Bureau / Coworking",
+      description: "",
+      capacite: bureau.capacity,
+      superficie: bureau.surface,
+      litOuEquipement: "",
+      prixNuite: Number(bureau.dailyRate.replace(/[^\d]/g, "")),
+      image: bureau.image,
+    };
+    localStorage.setItem("reservation_bien", JSON.stringify(bien));
+    router.push("/reservation/etape-2");
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50/50">
@@ -119,12 +139,13 @@ export default function BureauxPage() {
                       </div>
                     </div>
 
-                    <Link
-                      href="/reservation"
+                    <button
+                      type="button"
+                      onClick={() => handleReserve(bureau)}
                       className="w-full rounded-xl bg-emerald-950 py-3 text-center text-xs font-medium text-white shadow-sm hover:bg-emerald-900 transition-colors"
                     >
                       Réserver cet espace
-                    </Link>
+                    </button>
                   </div>
                 </motion.div>
               ))}
