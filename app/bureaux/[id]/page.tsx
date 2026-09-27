@@ -12,11 +12,10 @@ interface EquipmentItem {
   label: string;
 }
 
-interface Appartement {
+interface Bureau {
   id: string;
   title: string;
   category: string;
-  pieces: string;
   superficie: string;
   capacity: string;
   price: string | number;
@@ -27,107 +26,101 @@ interface Appartement {
 }
 
 const DEFAULT_EQUIPMENTS: EquipmentItem[] = [
-  { label: "Wi-Fi Haut Débit" },
-  { label: "Cuisine équipée" },
-  { label: "Climatisation" },
-  { label: "Parking privé" },
-  { label: "Sécurité 24/7" },
-  { label: "Eau chaude" },
+  { label: "Fibre Optique 200 Mbps" },
+  { label: "Mobilier Ergonomique" },
+  { label: "Écran de présentation 4K" },
+  { label: "Accès Salles de Réunion" },
+  { label: "Espace Pause & Café" },
+  { label: "Service Impression & Scan" },
 ];
 
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80";
+const DEFAULT_IMAGE =
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80";
 
-const mockAppartements: Record<string, Appartement> = {
-  "ap111111-1111-1111-1111-111111111111": {
-    id: "ap111111-1111-1111-1111-111111111111",
-    title: "Appartement Bonapriso T3",
-    category: "F3",
-    pieces: "3 Pièces (F3)",
-    superficie: "95.5 m²",
-    capacity: "4-5 pers.",
-    price: 45000,
-    rating: "4.8",
+const mockBureaux: Record<string, Bureau> = {
+  "b-01": {
+    id: "b-01",
+    title: "Bureau Exécutif Akwa",
+    category: "Bureau Privé",
+    superficie: "25 m²",
+    capacity: "1-4 personnes",
+    price: 35000,
+    rating: "4.9",
     description:
-      "Appartement spacieux et lumineux situé à Bonapriso, entièrement meublé et équipé pour un séjour confortable en famille ou entre amis.",
+      "Un bureau privé haut de gamme entièrement meublé, situé au cœur d'Akwa. Idéal pour les entreprises, consultants et équipes restreintes cherchant un cadre professionnel complet.",
     images: [
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80",
+    ],
+    equipments: DEFAULT_EQUIPMENTS,
+  },
+  "b-02": {
+    id: "b-02",
+    title: "Salle de Conférence Wouri",
+    category: "Salle de Réunion",
+    superficie: "50 m²",
+    capacity: "12-20 personnes",
+    price: 60000,
+    rating: "5.0",
+    description:
+      "Salle de réunion moderne équipée d'un vidéoprojecteur 4K, système d'imprimante réseau et tableau blanc interactif pour vos séminaires et présentations d'affaires.",
+    images: [
+      "https://images.unsplash.com/photo-1431540015161-0bf868a2d407?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80",
     ],
     equipments: DEFAULT_EQUIPMENTS,
   },
 };
 
-// Le backend Express est monté sous /api/v1
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
-// Récupération de l'URL racine du serveur Express (ex: http://localhost:5000)
-const SERVER_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
+// Helper pour normaliser et formater les URLs d'images (chemins locaux vs backend Express)
+const formatImageUrl = (path?: string): string => {
+  if (!path) return DEFAULT_IMAGE;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
 
-/**
- * Formate l'URL de l'image pour pointer correctement vers le backend Express
- */
-function formatImageUrl(rawImage: any, fallback: string = FALLBACK_IMAGE): string {
-  let imgPath = rawImage;
+  // Extraction de l'origine du backend (http://localhost:5000)
+  const serverOrigin = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
 
-  if (Array.isArray(rawImage) && rawImage.length > 0) {
-    imgPath = rawImage[0];
-  } else if (typeof rawImage === "string" && rawImage.startsWith("[")) {
-    try {
-      const parsed = JSON.parse(rawImage);
-      if (Array.isArray(parsed) && parsed.length > 0) imgPath = parsed[0];
-    } catch {
-      // conserver la chaîne brute si le parse échoue
+  // Nettoyage des antislashs Windows
+  let cleanPath = path.replace(/\\/g, "/");
+  if (!cleanPath.startsWith("/")) cleanPath = `/${cleanPath}`;
+
+  // Gestion des sous-dossiers uploads/properties
+  if (!cleanPath.startsWith("/uploads/")) {
+    if (cleanPath.startsWith("/properties/")) {
+      cleanPath = `/uploads${cleanPath}`;
+    } else {
+      cleanPath = `/uploads/properties${cleanPath}`;
     }
   }
 
-  if (!imgPath || typeof imgPath !== "string") return fallback;
+  return `${serverOrigin}${cleanPath}`;
+};
 
-  // Si c'est déjà une URL distante complète
-  if (
-    imgPath.startsWith("http://") ||
-    imgPath.startsWith("https://") ||
-    imgPath.startsWith("data:")
-  ) {
-    return imgPath;
-  }
-
-  // Si le chemin commence déjà par /uploads/
-  if (imgPath.startsWith("/uploads")) {
-    return `${SERVER_URL}${imgPath}`;
-  }
-
-  // Si c'est un chemin relatif public frontend
-  if (imgPath.startsWith("/")) {
-    return imgPath;
-  }
-
-  // Par défaut : fichier uploadé dans le dossier /uploads/properties/ du backend
-  return `${SERVER_URL}/uploads/properties/${imgPath}`;
-}
-
-export default function DetailAppartementPage({
+export default function DetailBureauPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const resolvedParams = use(params);
-  const appartementId = resolvedParams.id;
+  const bureauId = resolvedParams.id;
   const router = useRouter();
 
-  const [appartement, setAppartement] = useState<Appartement | null>(null);
+  const [bureau, setBureau] = useState<Bureau | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  const fetchAppartementData = async (signal?: AbortSignal) => {
+  const fetchBureauData = async (signal?: AbortSignal) => {
     setIsLoading(true);
     setHasError(false);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/apartments/${appartementId}`, {
+      const response = await fetch(`${API_BASE_URL}/offices/${bureauId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -138,28 +131,26 @@ export default function DetailAppartementPage({
       if (response.ok) {
         const data = await response.json();
 
-        // Normalisation et formatage des images vers le backend Express
-        let rawImagesList: any[] = [];
+        // Normalisation des images
+        let rawImages: string[] = [];
         if (Array.isArray(data.images) && data.images.length > 0) {
-          rawImagesList = data.images;
-        } else if (data.image || data.coverImage) {
-          rawImagesList = [data.image || data.coverImage];
+          rawImages = data.images.map((img: any) =>
+            typeof img === "string" ? img : img.url || img.src || ""
+          );
+        } else if (data.image) {
+          rawImages = [
+            typeof data.image === "string" ? data.image : data.image.url || "",
+          ];
         }
 
-        let parsedImages: string[] = rawImagesList
-          .map((img: any) => {
-            const raw = typeof img === "string" ? img : img?.url || img?.src || "";
-            return formatImageUrl(raw, FALLBACK_IMAGE);
-          })
-          .filter(Boolean);
-
-        if (parsedImages.length === 0) {
-          parsedImages = [FALLBACK_IMAGE];
-        }
+        const parsedImages =
+          rawImages.length > 0
+            ? rawImages.map(formatImageUrl)
+            : [DEFAULT_IMAGE];
 
         // Normalisation des équipements
         const rawEquipments =
-          data.equipments || data.equipements || data.amenities;
+          data.equipments || data.equipements || data.services || data.amenities;
         let parsedEquipments: EquipmentItem[] = DEFAULT_EQUIPMENTS;
 
         if (Array.isArray(rawEquipments) && rawEquipments.length > 0) {
@@ -170,71 +161,69 @@ export default function DetailAppartementPage({
           );
         }
 
-        const normalizedAppartement: Appartement = {
-          id: String(data.id || appartementId),
-          title: data.title || data.nom || "Appartement sans nom",
-          category: data.category || data.pieces || "Appartement",
-          pieces: data.pieces || "2 Pièces (F2)",
+        const normalizedBureau: Bureau = {
+          id: String(data.id || bureauId),
+          title: data.title || data.nom || data.libelle || "Bureau sans nom",
+          category: data.category || data.type || "Bureau",
           superficie: data.superficie
             ? String(data.superficie).includes("m²")
               ? data.superficie
               : `${data.superficie} m²`
-            : "60 m²",
-          capacity: data.capacity || data.capacite || "2-4 pers.",
-          price: data.price ?? data.priceNumber ?? 0,
-          rating: data.rating || "4.8",
+            : "20 m²",
+          capacity: data.capacity || data.capacite || "1-4 personnes",
+          price: data.price ?? data.prixJour ?? data.prixNuite ?? 30000,
+          rating: data.rating || data.note || "4.8",
           description:
-            data.description || "Aucune description disponible pour ce bien.",
+            data.description || "Aucune description disponible pour cet espace.",
           images: parsedImages,
           equipments: parsedEquipments,
         };
 
-        setAppartement(normalizedAppartement);
+        setBureau(normalizedBureau);
         setIsLoading(false);
         return;
       }
     } catch (err: any) {
       if (err.name === "AbortError") return;
-      console.warn("Échec API backend appartements, tentative sur données locales :", err);
+      console.warn("Échec API backend bureaux, tentative sur données locales :", err);
     }
 
-    // Repli sur le Mock local
-    if (mockAppartements[appartementId]) {
-      setAppartement(mockAppartements[appartementId]);
+    if (mockBureaux[bureauId]) {
+      setBureau(mockBureaux[bureauId]);
       setHasError(false);
     } else {
-      setHasError(true);
+      setBureau(mockBureaux["b-01"]);
     }
     setIsLoading(false);
   };
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchAppartementData(controller.signal);
+    fetchBureauData(controller.signal);
 
     return () => {
       controller.abort();
     };
-  }, [appartementId]);
+  }, [bureauId]);
 
   const handleReserve = () => {
-    if (!appartement) return;
+    if (!bureau) return;
 
     const numericPrice =
-      typeof appartement.price === "number"
-        ? appartement.price
-        : Number(String(appartement.price).replace(/[^\d]/g, "")) || 0;
+      typeof bureau.price === "number"
+        ? bureau.price
+        : Number(String(bureau.price).replace(/[^\d]/g, "")) || 0;
 
     saveBienSelection({
-      id: appartement.id,
-      type: "apartment",
-      nom: appartement.title,
-      description: appartement.description,
-      capacite: appartement.capacity,
-      superficie: appartement.superficie,
-      litOuEquipement: "Appartement meublé",
+      id: bureau.id,
+      type: "office",
+      nom: bureau.title,
+      description: bureau.description,
+      capacite: bureau.capacity,
+      superficie: bureau.superficie,
+      litOuEquipement: "Espace de travail équipé",
       prixNuite: numericPrice,
-      image: appartement.images[0] || "",
+      image: bureau.images[0] || "",
     });
 
     router.push("/reservation/etape-2");
@@ -253,15 +242,15 @@ export default function DetailAppartementPage({
     );
   }
 
-  if (hasError || !appartement) {
+  if (hasError || !bureau) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50/50">
         <SiteHeader />
         <main className="flex-grow flex flex-col items-center justify-center p-6 text-center">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Impossible de charger l'appartement</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Impossible de charger le bureau</h2>
           <p className="text-sm text-gray-500 mb-6">Une erreur est survenue lors de la récupération des données.</p>
           <button
-            onClick={() => fetchAppartementData()}
+            onClick={() => fetchBureauData()}
             className="px-5 py-2.5 bg-emerald-950 text-white text-xs font-semibold rounded-xl hover:bg-emerald-900 transition-colors"
           >
             Réessayer
@@ -273,11 +262,11 @@ export default function DetailAppartementPage({
   }
 
   const formattedPrice =
-    typeof appartement.price === "number"
-      ? `${appartement.price.toLocaleString("fr-FR")} FCFA`
-      : String(appartement.price).includes("FCFA")
-      ? appartement.price
-      : `${appartement.price} FCFA`;
+    typeof bureau.price === "number"
+      ? `${bureau.price.toLocaleString("fr-FR")} FCFA`
+      : String(bureau.price).includes("FCFA")
+      ? bureau.price
+      : `${bureau.price} FCFA`;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50/50">
@@ -288,25 +277,25 @@ export default function DetailAppartementPage({
         <nav className="text-xs text-gray-500 mb-6 flex items-center gap-1.5" aria-label="Breadcrumb">
           <Link href="/" className="hover:underline">Accueil</Link>
           <span>&gt;</span>
-          <Link href="/appartements" className="hover:underline">Hébergements</Link>
+          <Link href="/bureaux" className="hover:underline">Bureaux</Link>
           <span>&gt;</span>
-          <span className="text-gray-900 font-medium truncate">{appartement.title}</span>
+          <span className="text-gray-900 font-medium truncate">{bureau.title}</span>
         </nav>
 
         {/* Galerie photos */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
           <div className="lg:col-span-2 h-[350px] sm:h-[420px] rounded-3xl overflow-hidden shadow-sm bg-gray-100">
             <img
-              src={appartement.images[activeImageIndex] || appartement.images[0]}
-              alt={appartement.title}
+              src={bureau.images[activeImageIndex] || bureau.images[0]}
+              alt={bureau.title}
               onError={(e) => {
-                e.currentTarget.src = FALLBACK_IMAGE;
+                e.currentTarget.src = DEFAULT_IMAGE;
               }}
               className="w-full h-full object-cover transition-all duration-300"
             />
           </div>
           <div className="grid grid-cols-3 lg:grid-cols-1 gap-4">
-            {appartement.images.map((imgUrl, idx) => (
+            {bureau.images.map((imgUrl, idx) => (
               <button
                 key={idx}
                 type="button"
@@ -321,7 +310,7 @@ export default function DetailAppartementPage({
                   src={imgUrl}
                   alt={`Aperçu ${idx + 1}`}
                   onError={(e) => {
-                    e.currentTarget.src = FALLBACK_IMAGE;
+                    e.currentTarget.src = DEFAULT_IMAGE;
                   }}
                   className="w-full h-full object-cover"
                 />
@@ -336,33 +325,33 @@ export default function DetailAppartementPage({
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-semibold">
-                  {appartement.category}
+                  {bureau.category}
                 </span>
                 <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">
-                  {appartement.capacity}
+                  {bureau.capacity}
                 </span>
                 <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-medium">
-                  {appartement.superficie}
+                  {bureau.superficie}
                 </span>
                 <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-medium">
-                  ⭐ {appartement.rating}
+                  ⭐ {bureau.rating}
                 </span>
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-emerald-950">{appartement.title}</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-emerald-950">{bureau.title}</h1>
               <p className="text-2xl font-bold text-orange-700 mt-2">
-                {formattedPrice} <span className="text-sm font-normal text-gray-500">/ nuit</span>
+                {formattedPrice} <span className="text-sm font-normal text-gray-500">/ jour</span>
               </p>
             </div>
 
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-              <h2 className="font-bold text-gray-900 text-base">Présentation du logement</h2>
-              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{appartement.description}</p>
+              <h2 className="font-bold text-gray-900 text-base">Présentation de l'espace</h2>
+              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{bureau.description}</p>
             </div>
 
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-              <h2 className="font-bold text-gray-900 text-base">Équipements inclus</h2>
+              <h2 className="font-bold text-gray-900 text-base">Services & Équipements inclus</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {appartement.equipments.map((eq, index) => (
+                {bureau.equipments.map((eq, index) => (
                   <div
                     key={index}
                     className="text-xs font-medium text-gray-700 bg-gray-50 p-3 rounded-xl border border-gray-100"
@@ -380,9 +369,9 @@ export default function DetailAppartementPage({
             animate={{ opacity: 1, y: 0 }}
             className="w-full lg:w-[380px] bg-white rounded-3xl p-6 shadow-xl border border-gray-100 sticky top-24 space-y-6"
           >
-            <h2 className="font-bold text-gray-900 text-lg">Réserver ce logement</h2>
+            <h2 className="font-bold text-gray-900 text-lg">Réserver cet espace</h2>
             <div className="flex justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-              <span>TARIF PAR NUIT</span>
+              <span>TARIF JOURNALIER</span>
               <span className="font-semibold text-gray-900">{formattedPrice}</span>
             </div>
             <button

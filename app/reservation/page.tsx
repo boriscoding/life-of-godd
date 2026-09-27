@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { StepProgressBar } from "@/app/reservation/StepProgressBar";
-
+export const dynamic = "force-dynamic";
 interface Hebergement {
   id: string;
   nom: string;

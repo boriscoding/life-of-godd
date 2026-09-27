@@ -1,33 +1,30 @@
 "use client";
 
-import { ReactNode } from "react";
 import { ShieldAlert } from "lucide-react";
 import { Permission } from "../lib/auth";
-import { useAuth } from "../lib/auth-context";
+// ❌ Supprimé l'espace superflue dans le chemin
+// ✅ Utilisé l'alias d'import Next.js pour éviter les erreurs de chemin relatif
+import { useAuth } from "@/app/contexte/AuthContext";
 
-export default function RequirePermission({
-  permission,
-  children,
-}: {
-  permission: Permission;
-  children: ReactNode;
-}) {
-  const { can, user } = useAuth();
+interface RequirePermissionProps {
+  permission?: Permission;
+  children: React.ReactNode;
+}
 
-  if (user && can(permission)) {
-    return <>{children}</>;
+export default function RequirePermission({ permission, children }: RequirePermissionProps) {
+  const { can } = useAuth();
+
+  if (permission && !can(permission)) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center bg-red-50 text-red-700 rounded-lg border border-red-200">
+        <ShieldAlert className="w-12 h-12 mb-3 text-red-500" />
+        <h3 className="text-lg font-bold">Accès non autorisé</h3>
+        <p className="text-sm text-red-600 mt-1">
+          Vous n'avez pas la permission nécessaire pour accéder à cette section.
+        </p>
+      </div>
+    );
   }
 
-  return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-3 px-5 text-center">
-      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#fbe7e4] text-em-red">
-        <ShieldAlert size={26} />
-      </div>
-      <h1 className="font-display text-xl font-semibold text-em-text">Accès restreint</h1>
-      <p className="max-w-sm text-sm text-em-text-muted">
-        Votre rôle ne permet pas d&apos;accéder à cette section. Contactez un
-        administrateur si vous pensez que c&apos;est une erreur.
-      </p>
-    </div>
-  );
+  return <>{children}</>;
 }

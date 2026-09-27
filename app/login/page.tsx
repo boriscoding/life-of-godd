@@ -1,53 +1,56 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { USERS, ROLE_LABELS } from "../lib/auth";
-import { useAuth } from "../lib/auth-context";
+import { useAuth } from "@/app/contexte/AuthContext";
+
+const PREDEFINED_USERS = [
+  { id: "1", name: "Administrateur", email: "admin@liifeisgood.cm", role: "ADMIN" },
+  { id: "2", name: "Hôte (Propriétaire)", email: "host@liifeisgood.cm", role: "HOST" },
+  { id: "3", name: "Client (Voyageur)", email: "client@liifeisgood.cm", role: "CLIENT" },
+];
 
 export default function LoginPage() {
-  const { login } = useAuth();
   const router = useRouter();
+  const { login } = useAuth();
 
-  function handleSelect(userId: string) {
-    login(userId);
-    // Redirige vers le tableau de bord après connexion
+  const handleSelect = (userId: string) => {
+    const selectedUser = PREDEFINED_USERS.find((u) => u.id === userId);
+    if (!selectedUser) return;
+
+    // Enregistrement unifié dans le contexte unique
+    login("mock-token-dev-123", selectedUser);
+
+    // Redirection vers le dashboard
     router.push("/dashboard");
-  }
+  };
+
+  // ... Reste du composant JSX identique ...
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-em-bg px-5">
-      <div className="w-full max-w-md rounded-xl border border-em-border bg-em-card p-8">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-em-accent font-display text-lg font-semibold text-white">
-            RÉ
-          </div>
-          <div>
-            <p className="font-display text-lg leading-tight text-em-text">Émeraude</p>
-            <p className="text-[11px] tracking-wide text-em-accent">ESPACE ADMIN</p>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 text-center">Connexion Rapide</h1>
+          <p className="text-xs text-gray-500 text-center mt-1">
+            Sélectionnez un profil prédéfini pour continuer
+          </p>
         </div>
 
-        <h1 className="font-display text-xl font-semibold text-em-text">Connexion</h1>
-        <p className="mt-1 text-sm text-em-text-muted">
-          Sélectionnez un compte pour accéder à l&apos;espace admin. Cet écran simule la
-          connexion en attendant le vrai système d&apos;authentification du backend.
-        </p>
-
-        <div className="mt-6 space-y-2.5">
-          {USERS.map((u) => (
+        <div className="space-y-3">
+          {PREDEFINED_USERS.map((user) => (
             <button
-              key={u.id}
-              onClick={() => handleSelect(u.id)}
-              className="flex w-full items-center gap-3 rounded-lg border border-em-border bg-white px-4 py-3 text-left transition-colors hover:border-em-accent hover:bg-em-accent/5"
+              key={user.id}
+              onClick={() => handleSelect(user.id)}
+              className="w-full text-left p-4 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-emerald-50 hover:border-emerald-200 transition-all group flex items-center justify-between"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-em-sidebar text-sm font-semibold text-white">
-                {u.initiales}
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate font-medium text-em-text">{u.nom}</span>
-                <span className="block truncate text-xs text-em-text-muted">
-                  {ROLE_LABELS[u.role]} · {u.email}
-                </span>
+              <div>
+                <p className="text-sm font-bold text-gray-800 group-hover:text-emerald-950">
+                  {user.name}
+                </p>
+                <p className="text-[11px] text-gray-400">{user.email}</p>
+              </div>
+              <span className="text-[10px] font-semibold uppercase px-2.5 py-1 rounded-lg bg-white border border-gray-200 text-gray-600 group-hover:border-emerald-300 group-hover:text-emerald-800">
+                {user.role}
               </span>
             </button>
           ))}

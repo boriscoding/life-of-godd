@@ -16,7 +16,9 @@ import {
   X,
 } from "lucide-react";
 import { Permission, ROLE_LABELS } from "../lib/auth";
-import { useAuth } from "../lib/auth-context";
+
+// ✅ APRÈS
+import { useAuth } from "@/app/contexte/AuthContext";
 import { useMobileNav } from "../lib/mobile-nav-context";
 
 const nav: { href: string; label: string; icon: typeof LayoutDashboard; permission: Permission }[] = [

@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { LogoMarkIcon } from "@/app/components/icons/misc-icons";
+import { useAuth } from "@/app/contexte/AuthContext";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logoutSession } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const menuItems = [
@@ -64,6 +67,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     };
   }, [isSidebarOpen]);
 
+  // Deconnexion reelle : vide le contexte + localStorage (via logoutSession),
+  // puis redirige. Avant, ce bouton n'etait qu'un lien vers /connexion sans
+  // jamais invalider la session (le token restait valide en arriere-plan).
+  const handleLogout = () => {
+    logoutSession();
+    router.push("/connexion");
+  };
+
   const sidebarContent = (
     <>
       <div className="space-y-8">
@@ -99,15 +110,16 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
       {/* Déconnexion */}
       <div className="pt-6 border-t border-gray-100">
-        <Link
-          href="/connexion"
-          className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium text-orange-700 hover:bg-orange-50 transition-colors"
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-medium text-orange-700 hover:bg-orange-50 transition-colors"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           Déconnexion
-        </Link>
+        </button>
       </div>
     </>
   );

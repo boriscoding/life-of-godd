@@ -1,58 +1,38 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-  useCallback,
-} from "react";
-import { USERS, User, Permission, hasPermission } from "../lib/auth";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
-const STORAGE_KEY = "emeraude-admin-user-id";
+export interface User {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+}
 
-type AuthContextValue = {
+interface AuthContextType {
   user: User | null;
-  loading: boolean;
-  login: (userId: string) => void;
-  logout: () => void;
-  can: (permission: Permission) => boolean;
-};
+  loginSession: (userData: User) => void;
+  logoutSession: () => void;
+  isAuthenticated: boolean;
+}
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const savedId = window.localStorage.getItem(STORAGE_KEY);
-    const found = USERS.find((u) => u.id === savedId) ?? null;
-    setUser(found);
-    setLoading(false);
-  }, []);
-
-  const login = useCallback((userId: string) => {
-    const found = USERS.find((u) => u.id === userId) ?? null;
-    setUser(found);
-    if (found) {
-      window.localStorage.setItem(STORAGE_KEY, found.id);
-    }
-  }, []);
-
-  const logout = useCallback(() => {
-    setUser(null);
-    window.localStorage.removeItem(STORAGE_KEY);
-  }, []);
-
-  const can = useCallback(
-    (permission: Permission) => (user ? hasPermission(user.role, permission) : false),
-    [user]
-  );
+  const loginSession = (userData: User) => setUser(userData);
+  const logoutSession = () => setUser(null);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, can }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loginSession,
+        logoutSession,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -60,6 +40,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth doit être utilisé dans un AuthProvider");
+  if (!ctx) {
+    throw new Error("useAuth doit être utilisé dans un AuthProvider");
+  }
   return ctx;
 }

@@ -3,21 +3,21 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/Sidebar";
-import { useAuth } from "../lib/auth-context";
+import { useAuth } from "@/app/contexte/AuthContext"; // Import unifié
 import { MobileNavProvider } from "../lib/mobile-nav-context";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       router.replace("/login");
     }
-  }, [loading, user, router]);
+  }, [isLoading, user, router]);
 
-  if (loading || !user) {
-    return <div className="min-h-screen bg-em-bg" />;
+  if (isLoading || !user) {
+    return <div className="min-h-screen bg-em-bg flex items-center justify-center">Chargement...</div>;
   }
 
   return (
@@ -28,4 +28,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
     </MobileNavProvider>
   );
-} 
+}

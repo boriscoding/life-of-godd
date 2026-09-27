@@ -1,50 +1,118 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StepProgressBar } from "@/app/reservation/StepProgressBar";
+import { useAuth } from "@/app/contexte/AuthContext";
+import {
+  getBienSelection,
+  getDatesSelection,
+  getGuestInfo,
+  createReservationAndPay,
+  type BienSelection,
+  type DatesSelection,
+} from "@/app/lib/reservation";
 
 export default function ReservationEtape5() {
-  const [methode, setMethode] = useState("momo");
+  const router = useRouter();
+  // Le layout app/reservation/layout.tsx garantit déjà qu'on arrive ici
+  // authentifié, donc `user` est normalement toujours défini à ce stade.
+  const { user } = useAuth();
+
+  const [methode, setMethode] = useState<"momo" | "om" | "card" | "cash">("momo");
   const [formule, setFormule] = useState<"acompte" | "integral">("acompte");
 
-  // États pour les champs éditables de paiement
   const [telephone, setTelephone] = useState("677 889 900");
   const [numeroCarte, setNumeroCarte] = useState("");
   const [expirationCarte, setExpirationCarte] = useState("");
   const [cvvCarte, setCvvCarte] = useState("");
 
-  // Montant global récupéré des étapes précédentes (par défaut 160 250 FCFA)
-  const [totalGlobal, setTotalGlobal] = useState(160250);
+  const [bien, setBien] = useState<BienSelection | null>(null);
+  const [dates, setDates] = useState<DatesSelection | null>(null);
+  const [totalGlobal, setTotalGlobal] = useState(0);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Récupération dynamique du bien et des dates pour recalculer le montant si nécessaire,
-    // ou lecture d'un montant global stocké.
-    const storedBien = localStorage.getItem("reservation_bien");
-    const storedDates = localStorage.getItem("reservation_dates");
-    const storedPromo = localStorage.getItem("reservation_promo");
+    const bienSelectionne = getBienSelection();
+    const datesSelectionnees = getDatesSelection();
+    setBien(bienSelectionne);
+    setDates(datesSelectionnees);
 
-    if (storedBien && storedDates) {
-      const bien = JSON.parse(storedBien);
-      const dates = JSON.parse(storedDates);
-      const nuits = Math.max(1, dates.fin - dates.debut);
+    if (bienSelectionne && datesSelectionnees) {
+      const storedPromo = localStorage.getItem("reservation_promo");
+      const nuits = Math.max(1, datesSelectionnees.fin - datesSelectionnees.debut);
       const fraisService = 25000;
       const caution = 50000;
-      let sousTotal = bien.prixNuite * nuits;
+      let sousTotal = bienSelectionne.prixNuite * nuits;
 
       if (storedPromo) {
         const promo = JSON.parse(storedPromo);
-        sousTotal -= promo.duction || promo.reduction || 0;
+        sousTotal -= promo.reduction || 0;
       }
 
       setTotalGlobal(sousTotal + fraisService + caution);
     }
   }, []);
 
-  // Calculs dynamiques selon la formule de règlement
   const montantAcompte = Math.round(totalGlobal * 0.3);
   const montantSoldeSurPlace = totalGlobal - montantAcompte;
   const montantFinalAPayer = formule === "acompte" ? montantAcompte : totalGlobal;
+
+  const handlePayer = async () => {
+    if (!bien || !dates) {
+      setError("Aucun bien ou aucune date sélectionnée. Merci de reprendre depuis le début.");
+      return;
+    }
+
+    if (!user?.id) {
+      setError("Votre session a expiré. Merci de vous reconnecter.");
+      return;
+    }
+
+    const guest = getGuestInfo();
+    if (!guest || !guest.nomComplet || !guest.email || !guest.telephone) {
+      setError("Vos informations personnelles (étape 3) sont incomplètes. Merci de les compléter.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      await createReservationAndPay({
+        bien,
+        dates,
+        guest,
+        montantTotal: totalGlobal,
+        montantAPayer: montantFinalAPayer,
+        formule,
+        methodePaiement: methode,
+        telephonePaiement: methode === "momo" || methode === "om" ? telephone : undefined,
+        carte:
+          methode === "card"
+            ? { numero: numeroCarte, expiration: expirationCarte, cvv: cvvCarte }
+            : undefined,
+        promotionCode: localStorage.getItem("reservation_promo")
+          ? JSON.parse(localStorage.getItem("reservation_promo") as string).code
+          : undefined,
+        clientId: user.id,
+      });
+
+      router.push("/reservation/etape-6");
+    } catch (err: any) {
+      const backendData = err.response?.data;
+      setError(
+        backendData?.message ||
+          backendData?.error ||
+          "Une erreur est survenue lors du paiement. Merci de réessayer."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="bg-white min-h-screen text-gray-800">
@@ -159,6 +227,12 @@ export default function ReservationEtape5() {
                 </div>
               </div>
             </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 text-red-600 text-xs rounded-xl border border-red-100 font-medium">
+                {error}
+              </div>
+            )}
           </div>
 
           {/* Formule de règlement & Validation dynamique */}
@@ -204,9 +278,14 @@ export default function ReservationEtape5() {
               <Link href="/reservation/etape-4" className="sm:w-1/3 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 py-3.5 rounded-xl font-medium transition-colors flex items-center justify-center">
                 Retour
               </Link>
-              <Link href="/reservation/etape-6" className="sm:w-2/3 text-center bg-emerald-950 hover:bg-emerald-900 text-white py-3.5 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center">
-                Payer ({montantFinalAPayer.toLocaleString()} F) ✓
-              </Link>
+              <button
+                type="button"
+                onClick={handlePayer}
+                disabled={isSubmitting || !bien || !dates || !user?.id}
+                className="sm:w-2/3 text-center bg-emerald-950 hover:bg-emerald-900 disabled:opacity-50 text-white py-3.5 rounded-xl font-bold shadow-md transition-colors flex items-center justify-center"
+              >
+                {isSubmitting ? "Traitement..." : `Payer (${montantFinalAPayer.toLocaleString()} F) ✓`}
+              </button>
             </div>
             <p className="text-[10px] text-center text-gray-400">Paiement 100% sécurisé et crypté SSL</p>
           </div>

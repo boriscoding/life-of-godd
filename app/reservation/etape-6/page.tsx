@@ -3,57 +3,74 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { StepProgressBar } from "@/app/reservation/StepProgressBar";
+import { getBienSelection, getDatesSelection, getStoredReference } from "@/app/lib/reservation";
+import { useAuth } from "@/app/contexte/AuthContext";
 
 export default function ReservationEtape6() {
-  // États dynamiques pour la confirmation
-  const [reference, setReference] = useState("RES-2026-000125");
-  const [bienTitre, setBienTitre] = useState("Chambre VIP Émeraude");
-  const [datesTexte, setDatesTexte] = useState("Du 12 Nov au 19 Nov 2025");
-  const [nuits, setNuits] = useState(7);
-  const [voyageurs, setVoyageurs] = useState("2 Adultes");
-  const [montantTotal, setMontantTotal] = useState(160250);
-  const [reglementInfo, setReglementInfo] = useState("48 075 FCFA via MTN MoMo (Acompte 30%)");
-  const [soldeRestant, setSoldeRestant] = useState(112175);
-  const [emailClient, setEmailClient] = useState("client@example.com");
+  const { user } = useAuth();
+
+  const [reference, setReference] = useState("—");
+  const [bienTitre, setBienTitre] = useState("");
+  const [datesTexte, setDatesTexte] = useState("");
+  const [nuits, setNuits] = useState(1);
+  const [voyageurs, setVoyageurs] = useState("");
+  const [montantTotal, setMontantTotal] = useState(0);
+  const [reglementInfo, setReglementInfo] = useState("");
+  const [soldeRestant, setSoldeRestant] = useState(0);
+  const [emailClient, setEmailClient] = useState("");
 
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    // Génération ou récupération de la référence unique
-    const storedRef = localStorage.getItem("reservation_reference");
-    if (storedRef) {
-      setReference(storedRef);
-    } else {
-      const newRef = "RES-" + Math.floor(100000 + Math.random() * 900000);
-      localStorage.setItem("reservation_reference", newRef);
-      setReference(newRef);
-    }
+    // La référence provient désormais de l'API (créée à l'étape 5), pas d'un
+    // identifiant généré aléatoirement côté client.
+    const storedRef = getStoredReference();
+    if (storedRef) setReference(storedRef);
 
-    // Récupération des données des étapes 1, 2 et 3
-    const storedBien = localStorage.getItem("reservation_bien");
-    if (storedBien) {
-      const bien = JSON.parse(storedBien);
-      setBienTitre(bien.titre);
-    }
+    const bien = getBienSelection();
+    const dates = getDatesSelection();
+    if (bien) setBienTitre(bien.nom);
 
-    const storedDates = localStorage.getItem("reservation_dates");
-    if (storedDates) {
-      const dates = JSON.parse(storedDates);
+    if (dates) {
       const nbNuits = Math.max(1, dates.fin - dates.debut);
       setNuits(nbNuits);
       setDatesTexte(`Du ${dates.debut} Nov au ${dates.fin} Nov 2025`);
     }
 
-    const storedInfos = localStorage.getItem("reservation_infos");
+    if (bien && dates) {
+      const nbNuits = Math.max(1, dates.fin - dates.debut);
+      const fraisService = 25000;
+      const caution = 50000;
+      const storedPromo = localStorage.getItem("reservation_promo");
+      let sousTotal = bien.prixNuite * nbNuits;
+      if (storedPromo) {
+        const promo = JSON.parse(storedPromo);
+        sousTotal -= promo.reduction || 0;
+      }
+      const total = sousTotal + fraisService + caution;
+      setMontantTotal(total);
+
+      // La formule (acompte/intégral) choisie à l'étape 5 n'est pour l'instant
+      // pas repersistée après paiement : on affiche un acompte de 30% par
+      // défaut. Idéalement, l'API de création de réservation (étape 5)
+      // devrait renvoyer directement montantPaye / soldeRestant, à consommer
+      // ici plutôt que recalculés côté client.
+      const acompte = Math.round(total * 0.3);
+      setSoldeRestant(total - acompte);
+      setReglementInfo(`${acompte.toLocaleString()} FCFA versés (Acompte 30%)`);
+    }
+
+    const storedInfos = localStorage.getItem("reservation_form");
     if (storedInfos) {
       const infos = JSON.parse(storedInfos);
       if (infos.email) setEmailClient(infos.email);
-      if (infos.voyageurs) setVoyageurs(infos.voyageurs);
     }
-  }, []);
+    if (user?.email) setEmailClient(user.email);
+    setVoyageurs(user?.name || user?.email || "Voyageur");
+  }, [user]);
 
   const handleDownloadPDF = () => {
-    window.print(); // Déclenche l'impression / sauvegarde en PDF du reçu
+    window.print();
   };
 
   return (
@@ -72,59 +89,32 @@ export default function ReservationEtape6() {
             <h2 className="text-xl font-bold text-emerald-950 sm:text-2xl">Réservation confirmée !</h2>
             <div className="inline-flex flex-wrap items-center justify-center gap-2 bg-emerald-50 border border-emerald-100 px-4 py-1.5 rounded-full text-xs font-semibold text-emerald-900">
               <span>Référence de réservation :</span>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={reference}
-                  onChange={(e) => setReference(e.target.value)}
-                  className="bg-white border border-emerald-300 px-2 py-0.5 rounded outline-none text-emerald-950 font-bold"
-                />
-              ) : (
-                <span className="font-bold">{reference}</span>
-              )}
+              <span className="font-bold">{reference}</span>
             </div>
           </div>
 
-          {/* Bloc Détails du séjour (Éditable et Dynamique) */}
+          {/* Bloc Détails du séjour */}
           <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-sm space-y-6 text-xs max-w-4xl mx-auto relative sm:p-8">
 
             <div className="flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
               <h3 className="text-sm font-bold text-emerald-950 uppercase tracking-wide">Détails de votre séjour</h3>
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="self-start text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-xl font-medium transition-colors cursor-pointer sm:self-auto"
-              >
-                {isEditing ? "Enregistrer les modifications" : "✏️ Modifier les détails"}
-              </button>
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-4">
                 <div>
                   <span className="text-[10px] text-gray-400 block uppercase font-medium">Hébergement</span>
-                  {isEditing ? (
-                    <input type="text" value={bienTitre} onChange={(e) => setBienTitre(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 font-bold text-gray-900 mt-1" />
-                  ) : (
-                    <span className="font-bold text-gray-900 text-sm">{bienTitre}</span>
-                  )}
+                  <span className="font-bold text-gray-900 text-sm">{bienTitre}</span>
                 </div>
 
                 <div>
                   <span className="text-[10px] text-gray-400 block uppercase font-medium">Dates de séjour</span>
-                  {isEditing ? (
-                    <input type="text" value={datesTexte} onChange={(e) => setDatesTexte(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 font-bold text-gray-900 mt-1" />
-                  ) : (
-                    <span className="font-bold text-gray-900">{datesTexte} ({nuits} Nuits)</span>
-                  )}
+                  <span className="font-bold text-gray-900">{datesTexte} ({nuits} Nuits)</span>
                 </div>
 
                 <div>
-                  <span className="text-[10px] text-gray-400 block uppercase font-medium">Voyageurs</span>
-                  {isEditing ? (
-                    <input type="text" value={voyageurs} onChange={(e) => setVoyageurs(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 font-bold text-gray-900 mt-1" />
-                  ) : (
-                    <span className="font-bold text-gray-900">{voyageurs}</span>
-                  )}
+                  <span className="text-[10px] text-gray-400 block uppercase font-medium">Voyageur</span>
+                  <span className="font-bold text-gray-900">{voyageurs}</span>
                 </div>
               </div>
 
@@ -136,11 +126,7 @@ export default function ReservationEtape6() {
 
                 <div>
                   <span className="text-[10px] text-gray-400 block uppercase font-medium">Règlement effectué</span>
-                  {isEditing ? (
-                    <input type="text" value={reglementInfo} onChange={(e) => setReglementInfo(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 font-bold text-orange-700 mt-1" />
-                  ) : (
-                    <span className="font-bold text-orange-700">{reglementInfo}</span>
-                  )}
+                  <span className="font-bold text-orange-700">{reglementInfo || "Paiement en cours de traitement"}</span>
                 </div>
 
                 <div>
@@ -168,7 +154,7 @@ export default function ReservationEtape6() {
               <span>📥</span> Télécharger le reçu PDF
             </button>
             <Link
-              href="/"
+              href="/compte/dashboard"
               className="bg-emerald-950 hover:bg-emerald-900 text-white px-8 py-3.5 rounded-xl font-medium shadow-md transition-colors flex items-center justify-center gap-2 text-center"
             >
               Accéder à mon espace client →
