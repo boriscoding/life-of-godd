@@ -17,7 +17,8 @@ export type Permission =
   | "calendrier:view"
   | "calendrier:edit"
   | "rapports:view"
-  | "parametres:view";
+  | "parametres:view"
+  | "notifications:view";
 
 export type User = {
   id: string;
@@ -76,6 +77,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "calendrier:edit",
     "rapports:view",
     "parametres:view",
+    "notifications:view",
   ],
   receptionniste: [
     "dashboard:view",
@@ -87,6 +89,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "paiements:view",
     "calendrier:view",
     "calendrier:edit",
+    "notifications:view",
   ],
   comptable: [
     "dashboard:view",
@@ -97,6 +100,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "paiements:edit",
     "calendrier:view",
     "rapports:view",
+    "notifications:view",
   ],
 };
 

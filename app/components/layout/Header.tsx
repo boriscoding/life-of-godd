@@ -15,8 +15,8 @@ export function SiteHeader() {
   // Vérifie si on se trouve dans une section liée aux hébergements
   const isHebergementActive = pathname.startsWith("/chambres") || pathname.startsWith("/appartements");
 
-  // Vérifie si on se trouve dans l'espace client
-  const isCompteActive = pathname.startsWith("/compte");
+  // Vérifie si on se trouve sur la page d'inscription
+  const isInscriptionActive = pathname.startsWith("/inscription");
 
   // Ferme le menu mobile à chaque changement de page
   useEffect(() => {
@@ -126,18 +126,6 @@ export function SiteHeader() {
             Bureaux
           </Link>
 
-          {/* Réserver */}
-          <Link
-            href="/reservation"
-            className={
-              pathname.startsWith("/reservation")
-                ? "font-semibold text-emerald-800 underline decoration-2 underline-offset-8"
-                : "hover:text-emerald-950 transition-colors"
-            }
-          >
-            Réserver
-          </Link>
-
           {/* Contact */}
           <Link
             href="/contact"
@@ -166,9 +154,9 @@ export function SiteHeader() {
 
           <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
             <Link
-              href="/compte/dashboard"
+              href="/inscription"
               className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-[15px] font-medium shadow-md transition-all ${
-                isCompteActive
+                isInscriptionActive
                   ? "bg-emerald-950 text-white shadow-lg"
                   : "bg-orange-700 text-white hover:bg-orange-800 hover:shadow-lg"
               }`}
@@ -176,7 +164,7 @@ export function SiteHeader() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              Espace client
+              Inscription
             </Link>
           </motion.div>
         </div>
@@ -276,9 +264,7 @@ export function SiteHeader() {
                 <Link href="/bureaux" className={mobileLinkClass(pathname.startsWith("/bureaux"))}>
                   Bureaux
                 </Link>
-                <Link href="/reservation" className={mobileLinkClass(pathname.startsWith("/reservation"))}>
-                  Réserver
-                </Link>
+                
                 <Link href="/contact" className={mobileLinkClass(pathname.startsWith("/contact"))}>
                   Contact
                 </Link>
@@ -289,15 +275,15 @@ export function SiteHeader() {
                   Connexion
                 </Link>
                 <Link
-                  href="/compte/dashboard"
+                  href="/inscription"
                   className={`mt-1 flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[15px] font-medium shadow-md transition-all ${
-                    isCompteActive ? "bg-emerald-950 text-white" : "bg-orange-700 text-white hover:bg-orange-800"
+                    isInscriptionActive ? "bg-emerald-950 text-white" : "bg-orange-700 text-white hover:bg-orange-800"
                   }`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  Espace client
+                  Inscription
                 </Link>
               </nav>
             </motion.div>

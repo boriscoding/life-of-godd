@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { SiteHeader } from "@/app/components/layout/Header";
 import { SiteFooter } from "@/app/components/layout/Footer";
 
+// Le backend Express est monté sous /api/v1
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
+
 export default function ContactPage() {
+  const searchParams = useSearchParams();
+
   const [formData, setFormData] = useState({
     nom: "",
     email: "",
@@ -14,12 +21,53 @@ export default function ContactPage() {
     message: "",
   });
 
-  const [submitted, setSubmitted] = useState(false);
+  // Pré-remplissage du message quand on arrive depuis un lien du type
+  // /contact?sujet=Réservation+Terrasse+... (ex: bouton "Demander une
+  // réservation" de la section Terrasse sur l'accueil). Le formulaire n'a
+  // pas de champ "sujet" séparé, donc on l'intègre au message, modifiable
+  // ensuite par la personne avant envoi.
+  useEffect(() => {
+    const sujet = searchParams.get("sujet");
+    if (sujet) {
+      setFormData((prev) => ({
+        ...prev,
+        message: prev.message || `Sujet : ${sujet}\n\n`,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulation d'envoi du formulaire
-    setSubmitted(true);
+    setError(null);
+    setIsSending(true);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || `Erreur serveur (${res.status})`);
+      }
+
+      setSubmitted(true);
+    } catch (err: any) {
+      console.error("Erreur envoi formulaire de contact:", err);
+      setError(
+        err.message ||
+          "Impossible d'envoyer votre message pour le moment. Merci de réessayer."
+      );
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -52,10 +100,16 @@ export default function ContactPage() {
             {submitted ? (
               <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 p-6 rounded-2xl text-center space-y-2">
                 <h3 className="font-bold text-base">Message envoyé avec succès !</h3>
-                <p className="text-xs text-emerald-700">Merci de nous avoir contactés. Notre équipe vous répondra très rapidement.</p>
+                <p className="text-xs text-emerald-700">Merci de nous avoir contactés. Notre équipe vous répondra très rapidement. Un accusé de réception vous a été envoyé par e-mail.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-xs font-medium">
+                    {error}
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">Nom complet</label>
                   <input 
@@ -105,9 +159,10 @@ export default function ContactPage() {
 
                 <button 
                   type="submit"
-                  className="w-full rounded-xl bg-emerald-950 py-3.5 text-center text-xs font-medium text-white shadow-md hover:bg-emerald-900 transition-colors"
+                  disabled={isSending}
+                  className="w-full rounded-xl bg-emerald-950 py-3.5 text-center text-xs font-medium text-white shadow-md hover:bg-emerald-900 transition-colors disabled:opacity-50"
                 >
-                  Envoyer le message
+                  {isSending ? "Envoi en cours..." : "Envoyer le message"}
                 </button>
               </form>
             )}

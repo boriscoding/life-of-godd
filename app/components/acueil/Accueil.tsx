@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -34,7 +35,15 @@ const offres = [
   },
 ];
 
-// Informations de l'espace terrasse mis en avant juste avant la grille d'offres
+// Informations de l'espace terrasse mis en avant juste avant la grille d'offres.
+// ⚠️ Cet espace n'est PAS un bien réel en base (aucune ligne `properties`
+// correspondante) : il ne peut donc pas passer par le vrai tunnel de
+// réservation (POST /bookings échouerait faute de propertyId valide). Le
+// bouton ci-dessous redirige vers /contact à la place. Si tu veux qu'il
+// soit réellement réservable, crée-le comme un vrai bien depuis
+// /dashboard/biens (le type le plus proche dans le schéma actuel est
+// "office", faute d'un type "espace événementiel" dédié) puis remplace
+// `terrasse.id` par son vrai id.
 const terrasse = {
   titre: "Terrasse Panoramique Émeraude",
   texte:
@@ -43,7 +52,6 @@ const terrasse = {
   capacite: "Jusqu'à 60 personnes",
   superficie: "180 m²",
   prixNuite: 60000,
-  id: "terrasse-panoramique",
 };
 
 const avis = [
@@ -63,24 +71,45 @@ const avis = [
   },
 ];
 
+// Fait correspondre le type de bien choisi dans la barre de recherche à la
+// vraie page de listing branchée sur l'API (/chambres, /appartements,
+// /bureaux), toutes déjà connectées au backend.
+const TYPE_TO_ROUTE: Record<string, string> = {
+  "Chambre Premium": "/chambres",
+  "Chambre Standard": "/chambres",
+  "Appartement meublé": "/appartements",
+  Bureau: "/bureaux",
+};
+
 export default function AccueilPage() {
   const router = useRouter();
 
-  // Enregistre la terrasse comme bien choisi et saute directement à l'étape 2 (Dates & Durée)
+  // État contrôlé de la barre de recherche — auparavant les 4 champs
+  // n'étaient reliés à rien et "Rechercher" ignorait tout pour toujours
+  // pointer vers /reservation.
+  const [typeBien, setTypeBien] = useState("Chambre Premium");
+  const [dateArrivee, setDateArrivee] = useState("2025-11-12");
+  const [dateDepart, setDateDepart] = useState("2025-11-19");
+  const [personnes, setPersonnes] = useState("2 Adultes");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const route = TYPE_TO_ROUTE[typeBien] || "/appartements";
+    const params = new URLSearchParams({
+      arrivee: dateArrivee,
+      depart: dateDepart,
+      personnes,
+    });
+    router.push(`${route}?${params.toString()}`);
+  };
+
+  // Le tunnel de réservation réel exige un bien existant en base (voir la
+  // note au-dessus de `terrasse`) : on redirige donc vers le formulaire de
+  // contact plutôt que de pousser un faux bien dans /reservation.
   const handleReserveTerrasse = () => {
-    const bien = {
-      id: terrasse.id,
-      nom: terrasse.titre,
-      type: "Espace Événementiel / Terrasse",
-      description: terrasse.texte,
-      capacite: terrasse.capacite,
-      superficie: terrasse.superficie,
-      litOuEquipement: "",
-      prixNuite: terrasse.prixNuite,
-      image: terrasse.image,
-    };
-    localStorage.setItem("reservation_bien", JSON.stringify(bien));
-    router.push("/reservation/etape-2");
+    router.push(
+      `/contact?sujet=${encodeURIComponent("Réservation Terrasse Panoramique Émeraude")}`
+    );
   };
 
   return (
@@ -147,14 +176,21 @@ export default function AccueilPage() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="relative mx-auto max-w-7xl px-6 pb-16 lg:px-10"
         >
-          <form className="grid gap-4 rounded-2xl bg-white p-6 text-gray-900 shadow-2xl sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] lg:items-end border border-gray-200">
+          <form
+            onSubmit={handleSearch}
+            className="grid gap-4 rounded-2xl bg-white p-6 text-gray-900 shadow-2xl sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] lg:items-end border border-gray-200"
+          >
             <label className="text-sm">
               <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
                 Type de bien
               </span>
               <div className="mt-1.5 flex items-center gap-2 border-b border-gray-300 pb-1.5">
                 <DoorIcon className="h-4 w-4 shrink-0 text-emerald-700" />
-                <select className="w-full border-0 bg-transparent font-medium text-gray-900 focus:outline-none cursor-pointer">
+                <select
+                  value={typeBien}
+                  onChange={(e) => setTypeBien(e.target.value)}
+                  className="w-full border-0 bg-transparent font-medium text-gray-900 focus:outline-none cursor-pointer"
+                >
                   <option className="text-gray-900">Chambre Premium</option>
                   <option className="text-gray-900">Chambre Standard</option>
                   <option className="text-gray-900">Appartement meublé</option>
@@ -169,7 +205,8 @@ export default function AccueilPage() {
                 <CalendarIcon className="h-4 w-4 shrink-0 text-emerald-700" />
                 <input
                   type="date"
-                  defaultValue="2025-11-12"
+                  value={dateArrivee}
+                  onChange={(e) => setDateArrivee(e.target.value)}
                   className="w-full border-0 bg-transparent font-medium text-gray-900 focus:outline-none cursor-pointer"
                 />
               </div>
@@ -181,7 +218,8 @@ export default function AccueilPage() {
                 <CalendarIcon className="h-4 w-4 shrink-0 text-emerald-700" />
                 <input
                   type="date"
-                  defaultValue="2025-11-19"
+                  value={dateDepart}
+                  onChange={(e) => setDateDepart(e.target.value)}
                   className="w-full border-0 bg-transparent font-medium text-gray-900 focus:outline-none cursor-pointer"
                 />
               </div>
@@ -193,7 +231,11 @@ export default function AccueilPage() {
               </span>
               <div className="mt-1.5 flex items-center gap-2 border-b border-gray-300 pb-1.5">
                 <UsersIcon className="h-4 w-4 shrink-0 text-emerald-700" />
-                <select className="w-full border-0 bg-transparent font-medium text-gray-900 focus:outline-none cursor-pointer">
+                <select
+                  value={personnes}
+                  onChange={(e) => setPersonnes(e.target.value)}
+                  className="w-full border-0 bg-transparent font-medium text-gray-900 focus:outline-none cursor-pointer"
+                >
                   <option className="text-gray-900">2 Adultes</option>
                   <option className="text-gray-900">1 Adulte</option>
                   <option className="text-gray-900">Famille (4)</option>
@@ -201,13 +243,13 @@ export default function AccueilPage() {
               </div>
             </label>
 
-            <Link
-              href="/reservation"
+            <button
+              type="submit"
               className="flex items-center justify-center gap-2 rounded-xl bg-emerald-800 px-6 py-3.5 text-sm font-medium text-white transition-all hover:bg-emerald-700 hover:shadow-lg active:scale-95"
             >
               <SearchIcon className="h-4 w-4" />
               Rechercher
-            </Link>
+            </button>
           </form>
         </motion.div>
       </section>
@@ -260,7 +302,7 @@ export default function AccueilPage() {
                 onClick={handleReserveTerrasse}
                 className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-emerald-950 shadow-lg transition-all hover:bg-gray-100 hover:shadow-xl active:scale-95"
               >
-                Réserver cet espace &rarr;
+                Demander une réservation &rarr;
               </button>
             </div>
           </div>

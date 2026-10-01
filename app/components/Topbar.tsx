@@ -1,7 +1,8 @@
 "use client";
 
-import { Search, Bell, MapPin, Menu } from "lucide-react";
+import { Search, MapPin, Menu } from "lucide-react";
 import { useMobileNav } from "../lib/mobile-nav-context";
+import NotificationBell from "./Notificationbell";
 
 export default function Topbar({
   title,
@@ -41,13 +42,11 @@ export default function Topbar({
           />
         </div>
 
-        <button
-          aria-label="Notifications"
-          className="relative flex h-9 w-9 items-center justify-center rounded-full border border-em-border bg-white text-em-text"
-        >
-          <Bell size={16} />
-          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-em-accent" />
-        </button>
+        {/* Cloche de notifications réelle : compteur de non-lues + menu
+            déroulant + lien vers /dashboard/notifications (voir
+            app/components/NotificationBell.tsx). Remplace l'ancien bouton
+            purement décoratif. */}
+        <NotificationBell />
 
         <div className="hidden items-center gap-1.5 text-sm text-em-text-muted md:flex">
           <MapPin size={15} className="text-em-accent" />
